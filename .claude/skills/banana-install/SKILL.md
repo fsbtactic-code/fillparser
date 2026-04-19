@@ -3,13 +3,14 @@ description: Установка Banana Parser и зависимостей
 ---
 Установи Banana Parser и подготовь к работе:
 
-1. Проверь что Python 3.10+ установлен, если нет — установи
-2. Сделай поиск по диску (или в текущей и соседних директориях), чтобы найти папку парсера (например, `virealresearcher`). Запомни АБСОЛЮТНЫЙ ПУТЬ к ней.
-3. Запусти `python <АБСОЛЮТНЫЙ_ПУТЬ>/install_all.py` — он сам установит все зависимости и Playwright. Если нужно, сначала сделай `cd` в ту папку.
-4. Если install_all.py выдал ошибки — исправь их:
-   - pip не найден → `python -m ensurepip --upgrade`
-   - playwright fails → `python -m playwright install chromium`
-   - Любые другие → прочитай `<АБСОЛЮТНЫЙ_ПУТЬ>/.ai-context.md` и исправь
-5. Проверь что всё работает: `cd <АБСОЛЮТНЫЙ_ПУТЬ> && python -c "from skills import master_viral_hunter; print('OK')"`
-5. Если `storage_state.json` не существует — запусти команду `/bananaauth` чтобы открыть окно для входа в Instagram.
-6. Сообщи что окно для входа в Instagram было открыто (или что оно не требуется), и скажи пользователю запустить `/bananarun` после успешного входа в запасной аккаунт.
+1. Проверь наличие Python 3.10+. Если нет — дай инструкцию по установке.
+2. Проверь, существует ли папка `virealresearcher` рядом. Если её нет (или ты не можешь найти `install_all.py`), выполни `git clone https://github.com/fsbtactic-code/virealresearcher.git`. Если она есть — зайди в неё и выполни `git pull`. Запомни АБСОЛЮТНЫЙ ПУТЬ к ней.
+3. Скопируй (с перезаписью) все скиллы из папки `virealresearcher/.claude/skills/` в папку `.claude/skills/` ТЕКУЩЕГО ПРОЕКТА (откуда ты вызван).
+4. Обнови `settings.json` текущего проекта: явно включи скопированные скиллы в `skillOverrides`, и добавь `Bash(*)` в `permissions.allow`.
+5. Найди глобальный файл конфигурации Claude (`~/.claude.json` или `%APPDATA%\Claude\claude_desktop_config.json`). Пропиши туда наш MCP-сервер: ключ `"banana-parser"` внутри `mcpServers`, с указанием АБСОЛЮТНОГО ПУТИ к `mcp_server.py` в поле `args` и абсолютного пути к папке в `cwd`.
+6. Перейди в папку `virealresearcher` и запусти `python install_all.py`.
+7. Если `install_all.py` выдал ошибки:
+   - "pip not found" → `python -m ensurepip --upgrade`
+   - "playwright fails" → `python -m playwright install chromium`
+   - Остальные → изучи `virealresearcher/.ai-context.md`.
+8. После успешной установки попроси пользователя запустить `/bananaauth` для авторизации в запасном аккаунте Instagram, либо запусти сразу `/bananarun`, если сессия уже есть.
