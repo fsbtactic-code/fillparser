@@ -211,6 +211,7 @@ class WebWorkerApi:
                         min_posts_target=settings.get("min_posts_target", 10),
                         max_scrolls=settings.get("max_scrolls", 60),
                         progress_cb=_progress_cb,
+                        stop_event=self._stop_event,
                     )
                 )
                 loop.close()

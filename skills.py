@@ -209,7 +209,8 @@ async def scrape_feed(
     post_filter: Optional[PostFilter] = None,
     scrolls_limit: int = 60,
     fetch_images: bool = True, fetch_reels: bool = True, fetch_carousels: bool = True,
-    progress_cb: Optional[Any] = None
+    progress_cb: Optional[Any] = None,
+    stop_event: Optional[Any] = None
 ) -> list[dict]:
     log.info(f"[scrape_feed] Starting (limit: {time_limit_hours}h)")
     browser = StealthBrowser()
@@ -225,6 +226,9 @@ async def scrape_feed(
         max_scrolls, no_new = scrolls_limit, 0
         DOM_SEL = "article, a[href*='/p/']"
         for i in range(max_scrolls):
+            if stop_event and stop_event.is_set():
+                log.warning("[scrape_feed] Stop request received. Exiting loop.")
+                break
             prev_count = len(state.posts)
             try:
                 prev_dom = await page.locator(DOM_SEL).count()
@@ -243,6 +247,8 @@ async def scrape_feed(
             batch_loaded = False
             wait_start = time.time()
             while time.time() - wait_start < 20:
+                if stop_event and stop_event.is_set():
+                    break
                 await asyncio.sleep(0.8)
                 try:
                     curr_dom = await page.locator(DOM_SEL).count()
@@ -318,7 +324,8 @@ async def scrape_explore(
     post_filter: Optional[PostFilter] = None,
     scrolls_limit: int = 60,
     fetch_images: bool = True, fetch_reels: bool = True, fetch_carousels: bool = True,
-    progress_cb: Optional[Any] = None
+    progress_cb: Optional[Any] = None,
+    stop_event: Optional[Any] = None
 ) -> list[dict]:
     log.info(f"[scrape_explore] Starting (limit: {time_limit_hours}h)")
     browser = StealthBrowser()
@@ -332,8 +339,11 @@ async def scrape_explore(
         await browser.human_delay(3, 5)
 
         max_scrolls, no_new = scrolls_limit, 0
-        DOM_SEL = "a[href*='/p/'], a[href*='/reel/']"
+        DOM_SEL = "article, div[style*='grid-template-columns'] a"
         for i in range(max_scrolls):
+            if stop_event and stop_event.is_set():
+                log.warning("[scrape_explore] Stop request received. Exiting loop.")
+                break
             prev_count = len(state.posts)
             try:
                 prev_dom = await page.locator(DOM_SEL).count()
@@ -351,6 +361,8 @@ async def scrape_explore(
             batch_loaded = False
             wait_start = time.time()
             while time.time() - wait_start < 20:
+                if stop_event and stop_event.is_set():
+                    break
                 await asyncio.sleep(0.8)
                 try:
                     curr_dom = await page.locator(DOM_SEL).count()
@@ -423,7 +435,10 @@ async def scrape_search(
     time_limit_hours: int = 24,
     max_posts: int = 100,
     post_filter: Optional[PostFilter] = None,
-    progress_cb: Optional[Any] = None
+    scrolls_limit: int = 12,
+    fetch_images: bool = True, fetch_reels: bool = True, fetch_carousels: bool = True,
+    progress_cb: Optional[Any] = None,
+    stop_event: Optional[Any] = None
 ) -> list[dict]:
     log.info(f"[scrape_search] Keyword: '{keyword}' (limit: {time_limit_hours}h, max: {max_posts})")
     browser = StealthBrowser()
@@ -431,16 +446,19 @@ async def scrape_search(
     try:
         page = await browser.launch(headless=False, hidden=True)
         page.on("response", lambda r: asyncio.ensure_future(
-            handle_response(r, state, source=f"search:{keyword}", post_filter=post_filter, progress_cb=progress_cb)
+            handle_response(r, state, source=f"search:{keyword}", fetch_images=fetch_images, fetch_reels=fetch_reels, fetch_carousels=fetch_carousels, post_filter=post_filter, progress_cb=progress_cb)
         ))
         clean_keyword = keyword.lstrip("#").strip()
         # New Global Search URL
         await safe_goto(page, f"https://www.instagram.com/explore/search/keyword/?q={clean_keyword}")
         await browser.human_delay(3, 5)
 
-        max_scrolls, no_new = 12, 0  # 12 scrolls max per keyword
+        max_scrolls, no_new = scrolls_limit, 0
         DOM_SEL = "a[href*='/p/'], a[href*='/reel/']"
         for i in range(max_scrolls):
+            if stop_event and stop_event.is_set():
+                log.warning(f"[scrape_search:{keyword}] Stop request received. Exiting loop.")
+                break
             prev_count = len(state.posts)
             try:
                 prev_dom = await page.locator(DOM_SEL).count()
@@ -458,6 +476,8 @@ async def scrape_search(
             batch_loaded = False
             wait_start = time.time()
             while time.time() - wait_start < 20:
+                if stop_event and stop_event.is_set():
+                    break
                 await asyncio.sleep(0.8)
                 try:
                     curr_dom = await page.locator(DOM_SEL).count()
@@ -539,7 +559,8 @@ async def master_viral_hunter(
     fetch_carousels: bool = True,
     min_posts_target: int = 10,
     max_scrolls: int = 60,
-    progress_cb: Optional[Any] = None
+    progress_cb: Optional[Any] = None,
+    stop_event: Optional[Any] = None
 ) -> dict[str, Any]:
     """
     Main orchestrator for the viral content hunting pipeline.
@@ -575,27 +596,29 @@ async def master_viral_hunter(
         log.info("[master] Step 1/4: Safe mode — skipping keyword expansion.")
         keywords = kw_list
 
-    # Step 2 — Feed
     if do_feed:
-        log.info(f"[master] Step 2/4: Scraping home feed (Limit: {feed_limit})...")
-        try:
-            feed_posts = await scrape_feed(time_limit_hours, max_posts=feed_limit, post_filter=post_filter, scrolls_limit=max_scrolls, fetch_images=fetch_images, fetch_reels=fetch_reels, fetch_carousels=fetch_carousels, progress_cb=progress_cb)
-            log.info(f"[master] Feed returned {len(feed_posts)} posts")
-            all_posts.extend(feed_posts)
-        except Exception as exc:
-            log.error(f"[master] Feed scrape failed: {exc}")
+        if stop_event and stop_event.is_set(): log.info("[master] Stop event set before Feed")
+        else:
+            log.info(f"[master] Step 2/4: Scraping home feed (Limit: {feed_limit})...")
+            try:
+                feed_posts = await scrape_feed(time_limit_hours, max_posts=feed_limit, post_filter=post_filter, scrolls_limit=max_scrolls, fetch_images=fetch_images, fetch_reels=fetch_reels, fetch_carousels=fetch_carousels, progress_cb=progress_cb, stop_event=stop_event)
+                log.info(f"[master] Feed returned {len(feed_posts)} posts")
+                all_posts.extend(feed_posts)
+            except Exception as exc:
+                log.error(f"[master] Feed scrape failed: {exc}")
     else:
         log.info("[master] Step 2/4: Skipping home feed by user setting.")
 
-    # Step 3 — Explore
     if do_explore:
-        log.info(f"[master] Step 3/4: Scraping explore (Limit: {explore_limit})...")
-        try:
-            explore_posts = await scrape_explore(time_limit_hours, max_posts=explore_limit, post_filter=post_filter, scrolls_limit=max_scrolls, fetch_images=fetch_images, fetch_reels=fetch_reels, fetch_carousels=fetch_carousels, progress_cb=progress_cb)
-            log.info(f"[master] Explore returned {len(explore_posts)} posts")
-            all_posts.extend(explore_posts)
-        except Exception as exc:
-            log.error(f"[master] Explore scrape failed: {exc}")
+        if stop_event and stop_event.is_set(): log.info("[master] Stop event set before Explore")
+        else:
+            log.info(f"[master] Step 3/4: Scraping explore (Limit: {explore_limit})...")
+            try:
+                explore_posts = await scrape_explore(time_limit_hours, max_posts=explore_limit, post_filter=post_filter, scrolls_limit=max_scrolls, fetch_images=fetch_images, fetch_reels=fetch_reels, fetch_carousels=fetch_carousels, progress_cb=progress_cb, stop_event=stop_event)
+                log.info(f"[master] Explore returned {len(explore_posts)} posts")
+                all_posts.extend(explore_posts)
+            except Exception as exc:
+                log.error(f"[master] Explore scrape failed: {exc}")
     else:
         log.info("[master] Step 3/4: Skipping explore by user setting.")
 
@@ -604,19 +627,25 @@ async def master_viral_hunter(
     if include_deep_search:
         # Visit multiple related targets (up to 5 to avoid block)
         for kw in keywords[:5]:
+            if stop_event and stop_event.is_set():
+                log.info(f"[master] Stop event set before keyword {kw}")
+                break
             try:
-                all_posts.extend(await scrape_search(kw, time_limit_hours, max_posts=50, post_filter=post_filter, progress_cb=progress_cb))
+                all_posts.extend(await scrape_search(kw, time_limit_hours, max_posts=50, post_filter=post_filter, scrolls_limit=max_scrolls, fetch_images=fetch_images, fetch_reels=fetch_reels, fetch_carousels=fetch_carousels, progress_cb=progress_cb, stop_event=stop_event))
             except Exception as exc:
                 log.error(f"[master] Search '{kw}' failed: {exc}")
-            await asyncio.sleep(random.uniform(3, 7))
+            await asyncio.sleep(random.uniform(2, 4))
     else:
         # Safe mode: Iterate exactly over the provided keywords
         for kw in keywords:
+            if stop_event and stop_event.is_set():
+                log.info(f"[master] Stop event set before keyword {kw}")
+                break
             try:
-                all_posts.extend(await scrape_search(kw, time_limit_hours, max_posts=50, post_filter=post_filter, progress_cb=progress_cb))
+                all_posts.extend(await scrape_search(kw, time_limit_hours, max_posts=50, post_filter=post_filter, scrolls_limit=max_scrolls, fetch_images=fetch_images, fetch_reels=fetch_reels, fetch_carousels=fetch_carousels, progress_cb=progress_cb, stop_event=stop_event))
             except Exception as exc:
                 log.error(f"[master] Search '{kw}' failed: {exc}")
-            await asyncio.sleep(random.uniform(3, 7))
+            await asyncio.sleep(random.uniform(2, 4))
 
     # Deduplicate
     seen: set[str] = set()
