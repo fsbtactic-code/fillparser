@@ -26,6 +26,73 @@ BOLD   = lambda t: _c("1", t)
 DIM    = lambda t: _c("2", t)
 
 
+CUSTOM_CSS = """
+/* Banana Parser Liquid Glass Theme Override for Instagram Login */
+body, html, main, article {
+    background-color: #08080a !important;
+    color: #ffffff !important;
+}
+
+/* Force dark backgrounds on container elements */
+div {
+    background-color: transparent !important;
+}
+.x1qjc9v5, .x9f619 {
+    background-color: transparent !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    color: #fff !important;
+}
+
+/* Main login box targeting */
+form, div[class*="x1cy8zhl"], div[class*="x1xy1w5w"] {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 20px !important;
+    backdrop-filter: blur(20px) !important;
+    box-shadow: 0 0 40px rgba(255, 46, 147, 0.2) !important;
+}
+
+/* Inputs */
+input {
+    background-color: rgba(0, 0, 0, 0.6) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    color: #fff !important;
+    border-radius: 12px !important;
+}
+input:focus {
+    border-color: #ff2e93 !important;
+}
+
+/* Login Button */
+button[type="submit"], div[role="button"][tabindex="0"] {
+    background: linear-gradient(135deg, #ff2e93, #ff8a00) !important;
+    border: none !important;
+    border-radius: 12px !important;
+    color: #fff !important;
+    font-weight: 600 !important;
+    opacity: 1 !important;
+    transition: all 0.2s ease !important;
+}
+button[type="submit"]:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 15px rgba(255, 46, 147, 0.4) !important;
+}
+
+/* Text */
+span, p, h1, h2 {
+    color: #e0e0e0 !important;
+}
+a {
+    color: #ff8a00 !important;
+}
+
+/* Instagram sprite logo inversion */
+i[data-visualcompletion="css-img"] {
+    filter: invert(1) hue-rotate(180deg) brightness(2) !important;
+}
+"""
+
+
 def print_banner():
     print()
     print(_c("95", "  ╔══════════════════════════════════════════════════════════════╗"))
@@ -149,6 +216,14 @@ async def run_auth():
                 await cookie_btn.click()
         except Exception:
             pass
+
+        # --- INJECT CUSTOM CSS THEME ---
+        try:
+            print(CYAN("  💅 Применяю фирменный дизайн Banana Parser..."))
+            await page.add_style_tag(content=CUSTOM_CSS)
+        except Exception as e:
+            pass
+
 
         print(_c("43;30", "  ⏳ Войдите в Instagram в открытом браузере...                  "))
         print()
