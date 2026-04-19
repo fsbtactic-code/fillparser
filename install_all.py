@@ -12,6 +12,9 @@ import sys
 import platform
 from pathlib import Path
 
+if sys.stdout.encoding.lower() != 'utf-8':
+    sys.stdout.reconfigure(encoding='utf-8')
+
 # Colors
 if sys.platform == "win32":
     os.system("")  # Enable ANSI on Windows

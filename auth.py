@@ -11,6 +11,9 @@ import os
 import sys
 from pathlib import Path
 
+if sys.stdout.encoding.lower() != 'utf-8':
+    sys.stdout.reconfigure(encoding='utf-8')
+
 PROJECT_ROOT = Path(__file__).parent.resolve()
 STORAGE_STATE = PROJECT_ROOT / "storage_state.json"
 
