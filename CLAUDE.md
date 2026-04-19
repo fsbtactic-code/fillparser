@@ -3,6 +3,7 @@
 ## Slash Commands
 
 - `/banana-install` — Установить всё: зависимости, Playwright, проверить готовность
+- `/bananaauth` — Открыть защищенное окно для входа в Instagram
 - `/bananarun` — Запустить главное окно парсера (в отдельном процессе)
 
 ## What is this?
