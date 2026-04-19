@@ -16,12 +16,12 @@
 
 ```text
 Установи и настрой Banana Parser:
-1. git clone https://github.com/fsbtactic-code/virealresearcher.git
+1. git clone https://github.com/fsbtactic-code/virealresearcher.git (если папка уже есть — зайди в неё и сделай `git pull` для обновления файлов).
 2. cd virealresearcher
-3. python install_all.py
-4. Если есть ошибки при установке — проанализируй их и исправь.
-5. ОБЯЗАТЕЛЬНО запусти окно авторизации с помощью команды: `cmd /c start python auth.py` (Windows) или `osascript -e 'tell app "Terminal" to do script "python auth.py"'` (Mac). НЕ ПРОСИ меня запускать это вручную! Окно должно открыться автоматически.
-6. Когда я скажу, что авторизовался, запусти `python run_scraper.py` для открытия графического окна парсера.
+3. Найди глобальный файл конфигурации Claude (`~/.claude.json` или `%APPDATA%\Claude\claude_desktop_config.json`) и автоматически пропиши туда наш MCP-сервер (command: python, args: [mcp_server.py], cwd: текущая абсолютная папка).
+4. python install_all.py (если будут ошибки — проанализируй и исправь).
+5. ОБЯЗАТЕЛЬНО запуси окно авторизации с помощью команды: `cmd /c start python auth.py` (Windows) или `osascript -e 'tell app "Terminal" to do script "python auth.py"'` (Mac). НЕ ПРОСИ меня запускать это вручную! Окно должно открыться само.
+6. Когда я скажу, что авторизовался, запусти `/bananarun` (наша новая команда).
 
 При любых непонятных ошибках проекта читай файл `.ai-context.md`.
 ```
