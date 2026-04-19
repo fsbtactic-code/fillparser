@@ -7,5 +7,5 @@
    - playwright fails → `python -m playwright install chromium`
    - Любые другие → прочитай `.ai-context.md` и исправь
 4. Проверь что всё работает: `python -c "from skills import master_viral_hunter; print('OK')"`
-5. Если `storage_state.json` не существует — запусти `python auth.py` для авторизации Instagram
-6. Сообщи что установка завершена и пользователь может запустить `/banana-launch`
+5. Если `storage_state.json` не существует — запусти команду `cmd /c start python auth.py` через инструмент Bash (или используй `osascript` для Terminal на Mac). ОБЯЗАТЕЛЬНО выполни эту команду сам (чтобы открылось отдельное системное диалоговое окно или терминал), не перекладывай это на пользователя!
+6. Сообщи что окно для входа в Instagram было открыто, и скажи пользователю запустить `/banana-launch` после успешного входа в запасной аккаунт.
