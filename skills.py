@@ -155,7 +155,6 @@ async def auto_like_new_posts(page: Any, state: InterceptorState, global_state: 
             continue
             
         try:
-            import asyncio, random
             # 1) Пытаемся найти пост как статью в ленте (Feed)
             article_loc = page.locator(f"article:has(a[href*='/{p.shortcode}/'])").first
             if await article_loc.count() > 0:
@@ -800,14 +799,16 @@ async def master_viral_hunter(
     excl_zero = f_data.get("exclude_zero_engagement", False)
     only_ai = f_data.get("only_ai_topics", False)
     only_ru_en = f_data.get("only_ru_en", False)
+    ai_context_det = f_data.get("ai_context_detection", False)
     post_filter = PostFilter(
         min_likes=min_likes_val,
         exclude_zero_engagement=excl_zero,
         max_age_hours=time_limit_hours,
         only_ai_topics=only_ai,
-        only_ru_en=only_ru_en
+        only_ru_en=only_ru_en,
+        ai_context_detection=ai_context_det
     )
-    log.info(f"[master] PostFilter: min_likes={min_likes_val}, excl_zero={excl_zero}, max_age={time_limit_hours}h, only_ai={only_ai}, only_ru_en={only_ru_en}")
+    log.info(f"[master] PostFilter: min_likes={min_likes_val}, excl_zero={excl_zero}, max_age={time_limit_hours}h, only_ai={only_ai}, only_ru_en={only_ru_en}, ai_detect={ai_context_det}")
 
     all_posts: list[dict] = []
     
@@ -892,7 +893,8 @@ async def master_viral_hunter(
                 exclude_zero_engagement=post_filter.exclude_zero_engagement,
                 max_age_hours=post_filter.max_age_hours,
                 only_ai_topics=False,
-                only_ru_en=post_filter.only_ru_en
+                only_ru_en=post_filter.only_ru_en,
+                ai_context_detection=False  # Search keywords already guarantee AI topic
             )
             
             async with sem:

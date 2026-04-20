@@ -71,6 +71,7 @@ class PostFilter:
     exclude_zero_engagement: bool = False  # skip posts with 0 likes AND 0 comments
     only_ai_topics: bool = False
     only_ru_en: bool = False
+    ai_context_detection: bool = False
 
     def matches(self, post: "PostData") -> bool:
         """Return True if the post passes all filter criteria."""
@@ -100,13 +101,23 @@ class PostFilter:
         if self.min_followers > 0 and post.owner_followers < self.min_followers:
             return False
             
-        # IA filter (Strict Text Matching)
-        if self.only_ai_topics and not text_has_ai_topics(post.caption_text):
-            return False
+        # IA filter: strict keyword match + optional smart context detection
+        if self.only_ai_topics:
+            if text_has_ai_topics(post.caption_text):
+                pass  # keyword match succeeded
+            elif self.ai_context_detection:
+                from ai_detector import is_ai_content
+                if not is_ai_content(
+                    caption=post.caption_text,
+                    alt_text=getattr(post, 'alt_text', ''),
+                    subtitles=getattr(post, 'subtitles_text', ''),
+                ):
+                    return False
+            else:
+                return False
 
         # Advanced Language detection filter (RU/EN precision)
         if self.only_ru_en and getattr(post, 'caption_text', ''):
-            import re
             # Fast-path for Russian/Cyrillic
             if re.search(r'[а-яА-ЯёЁ]', post.caption_text):
                 pass
@@ -147,6 +158,8 @@ class PostData:
     timestamp: int = 0
     url: str = ""
     thumbnail_url: str = ""
+    alt_text: str = ""          # Instagram auto-generated accessibility description
+    subtitles_text: str = ""   # Reels subtitles / transcript
     is_reel: bool = False
     is_carousel: bool = False
     carousel_count: int = 0
@@ -311,6 +324,20 @@ def _extract_post(node: dict, source: str = "") -> Optional[PostData]:
             or len(node.get("carousel_media", []))
         )
 
+        # Extract Instagram auto-generated accessibility text (image AI description)
+        alt_text = ""
+        acc = node.get("accessibility_caption", "")
+        if acc and isinstance(acc, str):
+            alt_text = acc[:300]
+
+        # Extract Reels subtitles / transcript text
+        subtitles_text = ""
+        subs = node.get("video_subtitles", []) or []
+        if subs and isinstance(subs, list):
+            # Each entry may have 'text' or 'content'
+            parts = [s.get("text", s.get("content", "")) for s in subs if isinstance(s, dict)]
+            subtitles_text = " ".join(filter(None, parts))[:400]
+
         return PostData(
             post_id=post_id, shortcode=shortcode, post_type=post_type,
             owner_username=username, owner_full_name=full_name,
@@ -320,6 +347,7 @@ def _extract_post(node: dict, source: str = "") -> Optional[PostData]:
             thumbnail_url=thumb if isinstance(thumb, str) else "",
             is_reel=is_reel, is_carousel=is_carousel,
             carousel_count=carousel_count, source=source,
+            alt_text=alt_text, subtitles_text=subtitles_text,
         )
     except Exception as exc:
         log.debug(f"Failed to extract post node: {exc}")

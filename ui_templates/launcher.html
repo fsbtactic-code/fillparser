@@ -479,6 +479,16 @@
           <div class="knob"></div>
         </label>
       </div>
+      <div class="card toggle-row" onclick="toggle('ai_context_detection')" style="padding:16px 18px; margin-top:8px">
+        <span class="toggle-text has-icon active-icon-gray" id="lbl_ai_detect">
+          <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+          Умное распознавание ИИ-контента
+        </span>
+        <label class="switch" onclick="event.stopPropagation()">
+          <input type="checkbox" id="ai_context_detection" onchange="syncUI()">
+          <div class="knob"></div>
+        </label>
+      </div>
       <div class="section-title">Типы медиа</div>
       
       <div class="card toggle-row" onclick="toggle('fetch_images')" style="padding:14px 18px">
@@ -560,6 +570,7 @@
       'no_zero': 'lbl_no_zero',
       'only_ai_topics': 'lbl_ai_topics',
       'only_ru_en': 'lbl_ru_en',
+      'ai_context_detection': 'lbl_ai_detect',
       'fetch_images': 'lbl_img',
       'fetch_reels': 'lbl_reels',
       'fetch_carousels': 'lbl_carousels'
@@ -578,7 +589,7 @@
 
   const last = JSON.parse(localStorage.getItem('filpars_last_config') || '{}');
   const fields = ['keyword','depth','top_n','explore_limit','explore_scrolls','feed_limit','feed_scrolls','min_likes','ai_bulk_threads','ai_bulk_scrolls'];
-  const checks = ['scrape_explore','scrape_feed','search_ai_bulk','no_zero','only_ai_topics','only_ru_en','fetch_images','fetch_reels','fetch_carousels'];
+  const checks = ['scrape_explore','scrape_feed','search_ai_bulk','no_zero','only_ai_topics','only_ru_en','ai_context_detection','fetch_images','fetch_reels','fetch_carousels'];
   fields.forEach(f => { if(last[f] !== undefined){ const el = document.getElementById(f); if(el) el.value = last[f]; }});
   checks.forEach(c => { if(last[c] !== undefined){ const el = document.getElementById(c); if(el) el.checked = last[c]; }});
   syncUI(); // init states

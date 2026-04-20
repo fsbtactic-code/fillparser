@@ -129,29 +129,27 @@ class WebWorkerApi:
             return False
 
     def toggleBrowser(self, show: bool):
-        """Show or hide the headless browser (e.g., to solve captchas)."""
-        import asyncio
+        """Show or hide the headless browser window (e.g., to solve captchas)."""
         import browser_core
-        from config import log
 
         gb = browser_core.global_browser
-        if gb and getattr(gb, "_page", None):
-            try:
-                # Get the loop that the background worker created
-                loop = browser_core.global_loop
-            except AttributeError:
-                loop = asyncio.get_event_loop()
-                
-            if show:
-                log.info("👁️ Показываем окно браузера для верификации...")
-                asyncio.run_coroutine_threadsafe(gb.show_window(), loop)
-            else:
-                log.info("🙈 Скрываем окно браузера...")
-                asyncio.run_coroutine_threadsafe(gb.hide_window(), loop)
-            return True
-        else:
-            log.warning("Браузер еще не запущен или уже закрыт.")
+        loop = browser_core.global_loop
+
+        if not gb or not getattr(gb, "_page", None):
+            log.warning("⚠️ toggleBrowser: браузер ещё не запущен или уже закрыт.")
             return False
+
+        if not loop or not loop.is_running():
+            log.warning("⚠️ toggleBrowser: event loop не активен.")
+            return False
+
+        if show:
+            log.info("👁️ Показываем окно браузера...")
+            asyncio.run_coroutine_threadsafe(gb.show_window(), loop)
+        else:
+            log.info("🙈 Скрываем окно браузера...")
+            asyncio.run_coroutine_threadsafe(gb.hide_window(), loop)
+        return True
 
     def exportHTML(self, posts: list):
         """JS -> Python: Экспорт HTML через нативный SAVE диалог pywebview."""
@@ -224,6 +222,7 @@ class WebWorkerApi:
             "enable_deep_search":     gui_data.get("deep_search", False),
             "only_ai_topics":         gui_data.get("only_ai_topics", False),
             "only_ru_en":             gui_data.get("only_ru_en", False),
+            "ai_context_detection":   gui_data.get("ai_context_detection", False),
             "search_ai_bulk":         gui_data.get("search_ai_bulk", False),
             "ai_bulk_threads":        gui_data.get("ai_bulk_threads", 3),
             "ai_bulk_scrolls":        gui_data.get("ai_bulk_scrolls", 0),

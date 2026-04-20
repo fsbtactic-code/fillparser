@@ -136,6 +136,7 @@ class StealthBrowser:
         """Brings the window to the front explicitly (e.g., for captcha solving)."""
         if not getattr(self, "_context", None) or not getattr(self, "_page", None):
             return
+        session = None
         try:
             session = await self._context.new_cdp_session(self._page)
             target_info = await session.send("Target.getTargetInfo")
@@ -144,15 +145,21 @@ class StealthBrowser:
                 "windowId": res["windowId"],
                 "bounds": {"windowState": "normal", "left": 50, "top": 50, "width": 1280, "height": 800}
             })
-            # Bring to front using page evaluate + cdp
             await self._page.bring_to_front()
         except Exception as e:
             log.debug(f"Failed to show window: {e}")
+        finally:
+            if session:
+                try:
+                    await session.detach()
+                except Exception:
+                    pass
 
     async def hide_window(self):
         """Shrinks or moves the window away after captcha is solved."""
         if not getattr(self, "_context", None) or not getattr(self, "_page", None):
             return
+        session = None
         try:
             session = await self._context.new_cdp_session(self._page)
             target_info = await session.send("Target.getTargetInfo")
@@ -163,6 +170,12 @@ class StealthBrowser:
             })
         except Exception as e:
             log.debug(f"Failed to hide window: {e}")
+        finally:
+            if session:
+                try:
+                    await session.detach()
+                except Exception:
+                    pass
 
     async def rescue_window(self):
         """Returns the window position back to viewable area with micro-size as requested."""
