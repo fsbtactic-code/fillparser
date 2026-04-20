@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Banana Parser</title>
+<title>FilPars</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -243,6 +243,57 @@
   .btn-start:hover::before { opacity: 1; background: linear-gradient(135deg, rgba(255, 100, 200, 0.6), rgba(100, 200, 255, 0.6)); }
   .btn-start:active { transform: translateY(1px); }
 
+
+  /* ═══════ FILPARS LOGO ANIMATION ═══════ */
+  .filpars-logo-wrap {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .filpars-logo-wrap svg {
+    width: 26px; height: auto;
+    fill: #0059FF;
+    filter: drop-shadow(0 0 6px rgba(0,89,255,0.6));
+    animation: fp-breathe 3s ease-in-out infinite;
+  }
+  @keyframes fp-breathe {
+    0%, 100% { filter: drop-shadow(0 0 4px rgba(0,89,255,0.5)); transform: scale(1); }
+    50% { filter: drop-shadow(0 0 14px rgba(0,89,255,1)); transform: scale(1.06); }
+  }
+
+  /* Loader Logo */
+  .fp-loader-logo {
+    position: relative;
+    width: 96px; height: 96px;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 8px;
+  }
+  .fp-loader-logo svg.logo {
+    width: 72px; height: auto;
+    fill: #0059FF;
+    animation: fp-logo-draw 1.8s cubic-bezier(0.4,0,0.2,1) forwards,
+               fp-logo-glow 2.5s 1.8s ease-in-out infinite;
+    filter: drop-shadow(0 0 0px rgba(0,89,255,0));
+  }
+  @keyframes fp-logo-draw {
+    0%   { opacity: 0; transform: scale(0.7); filter: drop-shadow(0 0 0px rgba(0,89,255,0)); }
+    60%  { opacity: 1; transform: scale(1.08); filter: drop-shadow(0 0 20px rgba(0,89,255,0.9)); }
+    100% { opacity: 1; transform: scale(1);   filter: drop-shadow(0 0 10px rgba(0,89,255,0.7)); }
+  }
+  @keyframes fp-logo-glow {
+    0%, 100% { filter: drop-shadow(0 0 8px rgba(0,89,255,0.6)); transform: scale(1); }
+    50%      { filter: drop-shadow(0 0 24px rgba(0,89,255,1)); transform: scale(1.04); }
+  }
+  .fp-loader-ring {
+    position: absolute; inset: 0;
+    border-radius: 50%;
+    border: 1.5px solid rgba(0,89,255,0.15);
+    border-top-color: rgba(0,89,255,0.8);
+    animation: fp-ring-spin 1.4s linear infinite;
+  }
+  @keyframes fp-ring-spin { to { transform: rotate(360deg); } }
+
   .status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); box-shadow: 0 0 8px var(--green); }
 </style>
 </head>
@@ -264,7 +315,16 @@
 
   <!-- Page header (decorative) -->
   <div class="page-header">
-    <div class="page-header-title">🍌 Banana Parser</div>
+    <div class="page-header-title">
+      <span class="filpars-logo-wrap">
+        <svg viewBox="0 0 4044 2426" xmlns="http://www.w3.org/2000/svg">
+          <path d="M0 233.402V466.735H600.4C1008.93 466.735 1205.6 467.135 1216 468.202C1245.73 470.869 1284.4 480.335 1310.53 491.402C1328.53 499.002 1347.73 509.802 1364.53 521.802C1380.67 533.135 1410 561.935 1421.2 577.135C1446.67 611.935 1465.07 658.335 1476.4 716.069C1479.33 731.402 1479.33 731.935 1479.47 876.335C1479.6 993.802 1480 1021.8 1481.33 1023.4C1483.87 1026.47 1523.47 1049.8 1610 1099.4C1701.47 1151.8 1775.47 1202.6 1834.67 1253.94C1853.2 1269.94 1892.53 1309.4 1906.8 1326.07C1924.27 1346.6 1944.53 1373.67 1959.2 1396.34C1963.47 1402.87 1967.33 1408.07 1968.13 1408.07C1969.87 1408.07 1969.73 642.602 1968 612.735C1963.33 533.802 1948 454.735 1926.13 396.335C1905.33 340.735 1872.93 280.469 1842.93 241.402C1820.93 212.735 1775.73 166.735 1748 144.735C1677.87 89.0021 1601.33 51.2688 1508.67 26.2021C1473.2 16.7354 1449.33 11.8021 1417.73 7.40211C1363.2 -0.331226 1400.13 0.0687742 671.067 0.0687742H0V233.402Z"/>
+          <path d="M2074.27 0.868912C2073.87 1.26891 2073.87 308.602 2074.13 683.802C2074.53 1059.14 2074.8 1375.54 2074.8 1387C2074.67 1400.6 2075.2 1408.07 2076 1408.07C2076.8 1408.07 2079.07 1405.27 2081.07 1401.94C2116.13 1342.47 2174.4 1279.14 2247.33 1221.14C2295.87 1182.6 2366.27 1136.74 2442 1094.47C2506.53 1058.34 2545.73 1035.27 2562 1023.8C2562.93 1023.14 2563.6 929.536 2564 745.136L2564.67 467.402H2861.33C3175.73 467.402 3167.2 467.269 3199.33 473.536C3226.93 479.002 3258 488.069 3281.07 497.269C3293.47 502.202 3322.27 517.136 3334.93 525.136C3375.33 550.469 3406.13 582.069 3430.67 622.736C3451.87 657.936 3469.6 707.402 3477.2 752.736C3492.53 845.002 3483.73 929.136 3450.67 1004.07C3435.6 1038.47 3413.73 1069.27 3383.47 1099.4C3352.27 1130.47 3334.13 1143.4 3297.6 1161C3258.53 1179.94 3205.6 1194.2 3152.67 1200.07C3145.2 1200.87 3048.13 1201.4 2894 1201.54C2638.67 1201.8 2605.07 1202.34 2574.67 1206.07C2523.47 1212.34 2457.47 1229.8 2415.2 1248.2C2320.8 1289.14 2233.47 1354.47 2185.47 1420.07C2164 1449.54 2135.07 1502.6 2120.8 1539C2101.73 1587.67 2090 1631.94 2082.13 1685.4C2073.6 1743.54 2074.13 1714.2 2073.87 2085.4C2073.73 2337.67 2074 2423.67 2075.2 2424.34C2077.07 2425.54 2520.67 2425.67 2546 2424.47L2564.4 2423.67L2563.33 2233.8C2562.8 2129.4 2562.13 2042.34 2561.87 2040.34C2561.6 2038.34 2561.33 1955.54 2561.2 1856.34C2561.2 1716.87 2561.47 1675.54 2562.67 1674.07C2564.13 1672.34 2604.8 1672.07 2878.53 1672.07C3073.6 1672.07 3202.27 1671.54 3218 1670.74C3349.6 1663.67 3481.33 1630.34 3594 1575.54C3707.07 1520.47 3800.53 1445.67 3874.67 1350.74C3958.27 1243.8 4014.53 1107.54 4033.87 965.402C4051.33 836.202 4044.67 715.136 4013.2 588.736C3998.13 528.602 3982.8 486.469 3954.8 428.736C3934 385.936 3915.73 355.936 3887.33 318.202C3865.47 289.136 3848.27 269.536 3818.8 240.069C3794.4 215.669 3784.93 207.136 3758 185.269C3709.33 145.669 3637.6 102.736 3578 77.5356C3558 69.0022 3521.87 55.8022 3494.67 47.0022C3416.4 21.6689 3336 7.53558 3236 1.40225C3212.27 -0.0644209 2075.73 -0.597754 2074.27 0.868912Z"/>
+          <path d="M527.066 949.669C527.466 950.602 535.733 970.602 545.333 994.069C554.933 1017.54 570.533 1055.27 579.999 1078.07C589.466 1100.74 600.933 1128.34 605.466 1139.4C609.999 1150.34 616.799 1166.87 620.666 1176.07C624.533 1185.27 630.266 1199 633.333 1206.74C636.399 1214.47 641.733 1227.27 645.333 1235.4C655.733 1259.54 666.533 1285 673.999 1303.4C677.866 1312.87 683.866 1327.27 687.333 1335.4C718.399 1408.74 721.866 1416.34 724.533 1418.07C726.799 1419.54 763.199 1419.94 932.666 1420.47C1131.6 1421.14 1138.8 1421.27 1161.73 1423.94C1219.2 1430.87 1261.6 1443.67 1303.33 1467C1371.2 1504.87 1420.27 1556.47 1446.53 1617.8C1464 1658.6 1472.67 1691.14 1478.67 1738.74C1480.27 1751.8 1480.53 2099.27 1479.2 2299.54L1478.27 2423.67L1491.47 2424.47C1508.4 2425.67 1953.07 2425.67 1962.4 2424.6L1969.33 2423.67V2101.54C1969.33 1897 1968.8 1771.4 1968 1757.4C1960.53 1637.54 1930.53 1532.6 1881.2 1453.67C1870.27 1436.2 1849.2 1407.94 1834.8 1391.54C1822.4 1377.4 1794 1350.87 1774.53 1335.14C1759.33 1323.14 1698.8 1282.74 1672.8 1267.54C1662.4 1261.4 1624.93 1239 1589.33 1217.4C1553.73 1195.94 1504.93 1166.6 1480.67 1152.07C1456.53 1137.67 1432.53 1123.27 1427.33 1120.07C1406.27 1107.14 1334.53 1063.67 1304 1045.4C1286 1034.74 1246.8 1010.87 1216.67 992.602C1186.67 974.202 1157.73 956.736 1152.4 953.669L1142.93 948.069H834.666C588.533 948.069 526.533 948.469 527.066 949.669Z"/>
+        </svg>
+      </span>
+      FilPars
+    </div>
     <div class="page-header-status"><span class="dot"></span> Система готова к работе</div>
   </div>
 
@@ -354,6 +414,17 @@
         <input type="number" id="feed_limit" class="input" value="40" min="0">
       </div>
 
+      <div class="card toggle-row" onclick="toggle('search_ai_bulk')" style="padding:16px 18px; margin-bottom:14px; border: 1px solid rgba(255, 46, 147, 0.3); background: rgba(255,46,147, 0.05);">
+        <span class="toggle-text has-icon active-icon-gray" id="lbl_search_ai_bulk">
+          <svg class="icon" viewBox="0 0 24 24" style="stroke: #ff2e93;"><path d="M12 2l3 6 6 1-4 4 1 6-6-3-6 3 1-6-4-4 6-1 3-6z"/></svg>
+          <span style="color: #ff2e93; font-weight: 500;">Турбо-поиск ИИ (Многопоток)</span>
+        </span>
+        <label class="switch" onclick="event.stopPropagation()">
+          <input type="checkbox" id="search_ai_bulk" onchange="syncUI()">
+          <div class="knob"></div>
+        </label>
+      </div>
+
       <div class="section-title">Фильтры</div>
 
       <div class="form-group">
@@ -368,6 +439,17 @@
         </span>
         <label class="switch" onclick="event.stopPropagation()">
           <input type="checkbox" id="no_zero" checked onchange="syncUI()">
+          <div class="knob"></div>
+        </label>
+      </div>
+
+      <div class="card toggle-row" onclick="toggle('only_ai_topics')" style="padding:16px 18px; margin-top:8px">
+        <span class="toggle-text has-icon active-icon-gray" id="lbl_ai_topics">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+          Только публикации про ИИ
+        </span>
+        <label class="switch" onclick="event.stopPropagation()">
+          <input type="checkbox" id="only_ai_topics" onchange="syncUI()">
           <div class="knob"></div>
         </label>
       </div>
@@ -409,7 +491,7 @@
 
     <!-- Credits -->
     <div class="credits-footer">
-      🍌 Создано — <a href="https://banana_marketing.t.me/" target="_blank">Banana Master</a> · <a href="https://www.threads.com/@hackmemasters" target="_blank">Threads</a><br>
+      🟦 Создано — <a href="https://banana_marketing.t.me/" target="_blank">FilPars</a> · <a href="https://www.threads.com/@hackmemasters" target="_blank">Threads</a><br>
       <a href="https://pay.cloudtips.ru/p/ec9faa73" target="_blank" class="btn-donate">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:2px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg> 
         Поддержать проект
@@ -436,7 +518,9 @@
     const stateMap = {
       'scrape_explore': 'lbl_explore',
       'scrape_feed': 'lbl_feed',
+      'search_ai_bulk': 'lbl_search_ai_bulk',
       'no_zero': 'lbl_no_zero',
+      'only_ai_topics': 'lbl_ai_topics',
       'fetch_images': 'lbl_img',
       'fetch_reels': 'lbl_reels',
       'fetch_carousels': 'lbl_carousels'
@@ -453,9 +537,9 @@
     }
   }
 
-  const last = JSON.parse(localStorage.getItem('banana_last_config') || '{}');
+  const last = JSON.parse(localStorage.getItem('filpars_last_config') || '{}');
   const fields = ['keyword','depth','top_n','explore_limit','feed_limit','min_likes'];
-  const checks = ['scrape_explore','scrape_feed','no_zero','fetch_images','fetch_reels','fetch_carousels'];
+  const checks = ['scrape_explore','scrape_feed','search_ai_bulk','no_zero','only_ai_topics','fetch_images','fetch_reels','fetch_carousels'];
   fields.forEach(f => { if(last[f] !== undefined){ const el = document.getElementById(f); if(el) el.value = last[f]; }});
   checks.forEach(c => { if(last[c] !== undefined){ const el = document.getElementById(c); if(el) el.checked = last[c]; }});
   syncUI(); // init states
@@ -496,7 +580,7 @@
     fields.forEach(f => { const el = document.getElementById(f); config[f] = el.type === 'number' ? parseInt(el.value) : el.value; });
     checks.forEach(c => { config[c] = document.getElementById(c).checked; });
 
-    localStorage.setItem('banana_last_config', JSON.stringify(config));
+    localStorage.setItem('filpars_last_config', JSON.stringify(config));
     const btn = document.getElementById('startBtn');
     btn.disabled = true;
     btn.querySelector('.btn-content').innerHTML = '⏳ ПЕРЕДАЧА ДАННЫХ...';
@@ -515,6 +599,10 @@
       document.getElementById('statCarou').innerText = stats.carousels || 0;
       document.getElementById('statPhoto').innerText = stats.photos || 0;
       document.getElementById('statFiltered').innerText = stats.filtered || 0;
+      
+      if (stats.status_text && document.getElementById('statusText')) {
+        document.getElementById('statusText').innerText = stats.status_text;
+      }
     }
   };
 
@@ -523,16 +611,19 @@
     scrollArea.innerHTML = `
       <div style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:0;">
 
-        <!-- Liquid Orb Blur Animation -->
-        <div class="liquid-orb">
-          <div class="orb-layer glow"></div>
-          <div class="orb-layer color1"></div>
-          <div class="orb-layer color2"></div>
-          <div class="orb-content">🍌</div>
+        <!-- FilPars Logo Animation -->
+        <div class="fp-loader-logo">
+          <div class="fp-loader-ring"></div>
+          <svg class="logo" viewBox="0 0 4044 2426" xmlns="http://www.w3.org/2000/svg">
+            <path d="M0 233.402V466.735H600.4C1008.93 466.735 1205.6 467.135 1216 468.202C1245.73 470.869 1284.4 480.335 1310.53 491.402C1328.53 499.002 1347.73 509.802 1364.53 521.802C1380.67 533.135 1410 561.935 1421.2 577.135C1446.67 611.935 1465.07 658.335 1476.4 716.069C1479.33 731.402 1479.33 731.935 1479.47 876.335C1479.6 993.802 1480 1021.8 1481.33 1023.4C1483.87 1026.47 1523.47 1049.8 1610 1099.4C1701.47 1151.8 1775.47 1202.6 1834.67 1253.94C1853.2 1269.94 1892.53 1309.4 1906.8 1326.07C1924.27 1346.6 1944.53 1373.67 1959.2 1396.34C1963.47 1402.87 1967.33 1408.07 1968.13 1408.07C1969.87 1408.07 1969.73 642.602 1968 612.735C1963.33 533.802 1948 454.735 1926.13 396.335C1905.33 340.735 1872.93 280.469 1842.93 241.402C1820.93 212.735 1775.73 166.735 1748 144.735C1677.87 89.0021 1601.33 51.2688 1508.67 26.2021C1473.2 16.7354 1449.33 11.8021 1417.73 7.40211C1363.2 -0.331226 1400.13 0.0687742 671.067 0.0687742H0V233.402Z"/>
+            <path d="M2074.27 0.868912C2073.87 1.26891 2073.87 308.602 2074.13 683.802C2074.53 1059.14 2074.8 1375.54 2074.8 1387C2074.67 1400.6 2075.2 1408.07 2076 1408.07C2076.8 1408.07 2079.07 1405.27 2081.07 1401.94C2116.13 1342.47 2174.4 1279.14 2247.33 1221.14C2295.87 1182.6 2366.27 1136.74 2442 1094.47C2506.53 1058.34 2545.73 1035.27 2562 1023.8C2562.93 1023.14 2563.6 929.536 2564 745.136L2564.67 467.402H2861.33C3175.73 467.402 3167.2 467.269 3199.33 473.536C3226.93 479.002 3258 488.069 3281.07 497.269C3293.47 502.202 3322.27 517.136 3334.93 525.136C3375.33 550.469 3406.13 582.069 3430.67 622.736C3451.87 657.936 3469.6 707.402 3477.2 752.736C3492.53 845.002 3483.73 929.136 3450.67 1004.07C3435.6 1038.47 3413.73 1069.27 3383.47 1099.4C3352.27 1130.47 3334.13 1143.4 3297.6 1161C3258.53 1179.94 3205.6 1194.2 3152.67 1200.07C3145.2 1200.87 3048.13 1201.4 2894 1201.54C2638.67 1201.8 2605.07 1202.34 2574.67 1206.07C2523.47 1212.34 2457.47 1229.8 2415.2 1248.2C2320.8 1289.14 2233.47 1354.47 2185.47 1420.07C2164 1449.54 2135.07 1502.6 2120.8 1539C2101.73 1587.67 2090 1631.94 2082.13 1685.4C2073.6 1743.54 2074.13 1714.2 2073.87 2085.4C2073.73 2337.67 2074 2423.67 2075.2 2424.34C2077.07 2425.54 2520.67 2425.67 2546 2424.47L2564.4 2423.67L2563.33 2233.8C2562.8 2129.4 2562.13 2042.34 2561.87 2040.34C2561.6 2038.34 2561.33 1955.54 2561.2 1856.34C2561.2 1716.87 2561.47 1675.54 2562.67 1674.07C2564.13 1672.34 2604.8 1672.07 2878.53 1672.07C3073.6 1672.07 3202.27 1671.54 3218 1670.74C3349.6 1663.67 3481.33 1630.34 3594 1575.54C3707.07 1520.47 3800.53 1445.67 3874.67 1350.74C3958.27 1243.8 4014.53 1107.54 4033.87 965.402C4051.33 836.202 4044.67 715.136 4013.2 588.736C3998.13 528.602 3982.8 486.469 3954.8 428.736C3934 385.936 3915.73 355.936 3887.33 318.202C3865.47 289.136 3848.27 269.536 3818.8 240.069C3794.4 215.669 3784.93 207.136 3758 185.269C3709.33 145.669 3637.6 102.736 3578 77.5356C3558 69.0022 3521.87 55.8022 3494.67 47.0022C3416.4 21.6689 3336 7.53558 3236 1.40225C3212.27 -0.0644209 2075.73 -0.597754 2074.27 0.868912Z"/>
+            <path d="M527.066 949.669C527.466 950.602 535.733 970.602 545.333 994.069C554.933 1017.54 570.533 1055.27 579.999 1078.07C589.466 1100.74 600.933 1128.34 605.466 1139.4C609.999 1150.34 616.799 1166.87 620.666 1176.07C624.533 1185.27 630.266 1199 633.333 1206.74C636.399 1214.47 641.733 1227.27 645.333 1235.4C655.733 1259.54 666.533 1285 673.999 1303.4C677.866 1312.87 683.866 1327.27 687.333 1335.4C718.399 1408.74 721.866 1416.34 724.533 1418.07C726.799 1419.54 763.199 1419.94 932.666 1420.47C1131.6 1421.14 1138.8 1421.27 1161.73 1423.94C1219.2 1430.87 1261.6 1443.67 1303.33 1467C1371.2 1504.87 1420.27 1556.47 1446.53 1617.8C1464 1658.6 1472.67 1691.14 1478.67 1738.74C1480.27 1751.8 1480.53 2099.27 1479.2 2299.54L1478.27 2423.67L1491.47 2424.47C1508.4 2425.67 1953.07 2425.67 1962.4 2424.6L1969.33 2423.67V2101.54C1969.33 1897 1968.8 1771.4 1968 1757.4C1960.53 1637.54 1930.53 1532.6 1881.2 1453.67C1870.27 1436.2 1849.2 1407.94 1834.8 1391.54C1822.4 1377.4 1794 1350.87 1774.53 1335.14C1759.33 1323.14 1698.8 1282.74 1672.8 1267.54C1662.4 1261.4 1624.93 1239 1589.33 1217.4C1553.73 1195.94 1504.93 1166.6 1480.67 1152.07C1456.53 1137.67 1432.53 1123.27 1427.33 1120.07C1406.27 1107.14 1334.53 1063.67 1304 1045.4C1286 1034.74 1246.8 1010.87 1216.67 992.602C1186.67 974.202 1157.73 956.736 1152.4 953.669L1142.93 948.069H834.666C588.533 948.069 526.533 948.469 527.066 949.669Z"/>
+          </svg>
         </div>
 
         <h2 style="font-size:1.8rem;font-weight:600;margin-bottom:8px;background:linear-gradient(90deg, #fff, rgba(255,255,255,0.5));-webkit-background-clip:text;color:transparent;">Сканируем Instagram...</h2>
-        <p style="color:rgba(255,255,255,0.4);font-size:0.95rem;margin-bottom:40px;">Stealth Mode активен. Браузер скрыт.</p>
+        <p id="statusText" style="color:var(--orange);font-size:0.95rem;margin-bottom:8px; font-weight: 500;">Подготовка...</p>
+        <p style="color:rgba(255,255,255,0.4);font-size:0.85rem;margin-bottom:40px;">Stealth Mode активен. Браузер скрыт.</p>
 
         <!-- Stats Grid -->
         <div class="live-stats-grid">
@@ -589,14 +680,14 @@
         .orb-layer.color2 { background: var(--magenta); opacity: 0.7; animation-duration: 3s; animation-delay: -2s; }
         .orb-content {
            position: relative; z-index: 10; font-size: 28px;
-           animation: ghostBanana 10s infinite; opacity: 0; filter: blur(4px);
+           animation: ghostPulse 10s infinite; opacity: 0; filter: blur(4px);
         }
 
         @keyframes morphOrb {
            0% { transform: scale(0.9) rotate(0deg); border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
            100% { transform: scale(1.1) rotate(180deg); border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; }
         }
-        @keyframes ghostBanana {
+        @keyframes ghostPulse {
            0%, 40%, 60%, 100% { opacity: 0; filter: blur(10px); transform: scale(0.5); }
            48%, 52% { opacity: 0.9; filter: blur(0px); transform: scale(1.1); }
         }
@@ -724,10 +815,11 @@
         <!-- Header row -->
         <div class="dash-header">
           <div>
-            <h2 class="dash-title">🍌 Результаты охоты</h2>
+            <h2 class="dash-title">FilPars — Результаты</h2>
             <p class="dash-sub">Собрано <strong style="color:#34C759;">${count}</strong> постов · отсортировано по виральности</p>
           </div>
           <div style="display:flex;gap:8px;align-items:center;">
+            <button class="dsh-btn dsh-btn-ghost" onclick="exportHTML(postsData)" style="color:#a855f7; border-color: rgba(168,85,247,0.3);">✨ HTML</button>
             <button class="dsh-btn dsh-btn-ghost" onclick="exportCSV(postsData)">⬇ CSV</button>
             <button class="dsh-btn dsh-btn-green" onclick="exportSheets(postsData)">📋 Google Sheets</button>
             <button class="dsh-btn dsh-btn-ghost" onclick="backToSettings()">← Назад</button>
@@ -897,7 +989,19 @@
     });
     const blob = new Blob(['\uFEFF'+rows.join('\n')], {type:'text/csv;charset=utf-8'});
     const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-    a.download = 'banana_results.csv'; a.click();
+    a.download = 'filpars_results.csv'; a.click();
+  }
+
+  // ── HTML ───────────────────────────────────────────────────────
+  function exportHTML(posts) {
+    if (window.pywebview) {
+      window.pywebview.api.exportHTML(posts).then(success => {
+        if (success) {
+           // Toast или простой Alert
+           alert("HTML Дашборд успешно сохранен!");
+        }
+      });
+    }
   }
 
   // ── Sheets ─────────────────────────────────────────────────────

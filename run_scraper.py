@@ -27,7 +27,7 @@ sys.path.insert(0, str(PROJECT_ROOT))
 # ══════════════════════════════════════════════
 #  LOGGING SETUP
 # ══════════════════════════════════════════════
-LOG_FILE = PROJECT_ROOT / "banana.log"
+LOG_FILE = PROJECT_ROOT / "filpars.log"
 
 logging.basicConfig(
     level=logging.INFO,
@@ -38,10 +38,10 @@ logging.basicConfig(
         logging.StreamHandler(sys.stdout),
     ]
 )
-log = logging.getLogger("banana")
+log = logging.getLogger("filpars")
 
 log.info("=" * 60)
-log.info("🍌 BANANA PARSER — ЗАПУСК")
+log.info("🟦 FILPARS — ЗАПУСК")
 log.info(f"   Время:        {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
 log.info(f"   Python:       {sys.version}")
 log.info(f"   Platform:     {sys.platform}")
@@ -73,8 +73,8 @@ PURPLE = lambda t: _c("95", t)
 def print_banner():
     print()
     print(PURPLE("  ╔══════════════════════════════════════════════════════════════╗"))
-    print(PURPLE("  ║") + BOLD("  🍌 Banana Master — Viral Hunter                             ") + PURPLE("║"))
-    print(PURPLE("  ║") + DIM("  Instagram Stealth Scraper v3.0                               ") + PURPLE("║"))
+    print(PURPLE("  ║") + BOLD("🟦  FilPars — Instagram Stealth Scraper                        ") + PURPLE("║"))
+    print(PURPLE("  ║") + DIM("  v3.0 | Stealth Mode | Turbo AI Search                        ") + PURPLE("║"))
     print(PURPLE("  ╚══════════════════════════════════════════════════════════════╝"))
     print()
 
@@ -128,6 +128,40 @@ class WebWorkerApi:
             log.error(f"❌ Ошибка авторизации: {e}")
             return False
 
+    def exportHTML(self, posts: list):
+        """JS -> Python: Экспорт HTML через нативный SAVE диалог pywebview."""
+        log.info("📡 exportHTML() — экспорт красивого HTML")
+        try:
+            import webview
+            w = get_window()
+            if not w:
+                return False
+                
+            dt = datetime.now().strftime("%Y%m%d_%H%M")
+            fname = f"viral_report_{dt}.html"
+            
+            save_path = w.create_file_dialog(
+                webview.SAVE_DIALOG, 
+                directory='', 
+                save_filename=fname
+            )
+            
+            if save_path and isinstance(save_path, (list, tuple)):
+                path = save_path[0]
+            elif save_path:
+                path = save_path
+            else:
+                return False # Отменил
+                
+            # Импортируем существующий генератор
+            from ui_generator import generate_results_html
+            generate_results_html(posts, path)
+            log.info(f"✅ HTML успешно сохранен: {path}")
+            return True
+        except Exception as e:
+            log.error(f"❌ Ошибка экспорта HTML: {e}")
+            return False
+
     def startScraping(self, gui_data: dict):
         log.info("📡 startScraping() — получены данные из GUI")
         log.info(f"   gui_data: {json.dumps(gui_data, indent=2, ensure_ascii=False)}")
@@ -161,6 +195,8 @@ class WebWorkerApi:
             "max_scrolls":            gui_data.get("max_scrolls", 60),
             "min_posts_target":       gui_data.get("min_posts", 10),
             "enable_deep_search":     gui_data.get("deep_search", False),
+            "only_ai_topics":         gui_data.get("only_ai_topics", False),
+            "search_ai_bulk":         gui_data.get("search_ai_bulk", False),
         }
 
         log.info(f"📋 Настройки: keyword={settings['seed_keyword']}, depth={settings['time_limit_hours']}h")
@@ -248,7 +284,7 @@ class WebWorkerApi:
                         pass
 
                     posts_json = json.dumps(top_posts, ensure_ascii=False)
-                    posts_json_escaped = posts_json.replace("\\", "\\\\").replace("`", "\\`")
+                    posts_json_escaped = posts_json.replace("\\", "\\\\").replace("`", "\\`").replace("$", "\\$")
                     js_call = f"finishLoading({gathered}, `{posts_json_escaped}`)"
                     try:
                         w.evaluate_js(js_call)

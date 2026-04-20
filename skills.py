@@ -210,7 +210,8 @@ async def scrape_feed(
     scrolls_limit: int = 60,
     fetch_images: bool = True, fetch_reels: bool = True, fetch_carousels: bool = True,
     progress_cb: Optional[Any] = None,
-    stop_event: Optional[Any] = None
+    stop_event: Optional[Any] = None,
+    global_state: Optional[InterceptorState] = None
 ) -> list[dict]:
     log.info(f"[scrape_feed] Starting (limit: {time_limit_hours}h)")
     browser = StealthBrowser()
@@ -218,7 +219,7 @@ async def scrape_feed(
     try:
         page = await browser.launch(headless=False, hidden=True)
         page.on("response", lambda r: asyncio.ensure_future(
-            handle_response(r, state, source="feed", fetch_images=fetch_images, fetch_reels=fetch_reels, fetch_carousels=fetch_carousels, post_filter=post_filter, progress_cb=progress_cb)
+            handle_response(r, state, source="feed", fetch_images=fetch_images, fetch_reels=fetch_reels, fetch_carousels=fetch_carousels, post_filter=post_filter, progress_cb=progress_cb, global_state=global_state)
         ))
         await safe_goto(page, "https://www.instagram.com/")
         await browser.human_delay(3, 5)
@@ -325,7 +326,8 @@ async def scrape_explore(
     scrolls_limit: int = 60,
     fetch_images: bool = True, fetch_reels: bool = True, fetch_carousels: bool = True,
     progress_cb: Optional[Any] = None,
-    stop_event: Optional[Any] = None
+    stop_event: Optional[Any] = None,
+    global_state: Optional[InterceptorState] = None
 ) -> list[dict]:
     log.info(f"[scrape_explore] Starting (limit: {time_limit_hours}h)")
     browser = StealthBrowser()
@@ -333,7 +335,7 @@ async def scrape_explore(
     try:
         page = await browser.launch(headless=False, hidden=True)
         page.on("response", lambda r: asyncio.ensure_future(
-            handle_response(r, state, source="explore", fetch_images=fetch_images, fetch_reels=fetch_reels, fetch_carousels=fetch_carousels, post_filter=post_filter, progress_cb=progress_cb)
+            handle_response(r, state, source="explore", fetch_images=fetch_images, fetch_reels=fetch_reels, fetch_carousels=fetch_carousels, post_filter=post_filter, progress_cb=progress_cb, global_state=global_state)
         ))
         await safe_goto(page, "https://www.instagram.com/explore/")
         await browser.human_delay(3, 5)
@@ -438,7 +440,8 @@ async def scrape_search(
     scrolls_limit: int = 12,
     fetch_images: bool = True, fetch_reels: bool = True, fetch_carousels: bool = True,
     progress_cb: Optional[Any] = None,
-    stop_event: Optional[Any] = None
+    stop_event: Optional[Any] = None,
+    global_state: Optional[InterceptorState] = None
 ) -> list[dict]:
     log.info(f"[scrape_search] Keyword: '{keyword}' (limit: {time_limit_hours}h, max: {max_posts})")
     browser = StealthBrowser()
@@ -446,7 +449,7 @@ async def scrape_search(
     try:
         page = await browser.launch(headless=False, hidden=True)
         page.on("response", lambda r: asyncio.ensure_future(
-            handle_response(r, state, source=f"search:{keyword}", fetch_images=fetch_images, fetch_reels=fetch_reels, fetch_carousels=fetch_carousels, post_filter=post_filter, progress_cb=progress_cb)
+            handle_response(r, state, source=f"search:{keyword}", fetch_images=fetch_images, fetch_reels=fetch_reels, fetch_carousels=fetch_carousels, post_filter=post_filter, progress_cb=progress_cb, global_state=global_state)
         ))
         clean_keyword = keyword.lstrip("#").strip()
         # New Global Search URL
@@ -541,6 +544,94 @@ async def scrape_search(
 
 
 # ═══════════════════════════════════════════════════════
+#  Skill 4.5: scrape_search_tab (for concurrent runs)
+# ═══════════════════════════════════════════════════════
+
+async def scrape_search_tab(
+    browser: StealthBrowser,
+    page: Any,
+    keyword: str,
+    time_limit_hours: int = 24,
+    max_posts: int = 100,
+    post_filter: Optional[PostFilter] = None,
+    scrolls_limit: int = 7,  # Default for bulk is 7
+    fetch_images: bool = True, fetch_reels: bool = True, fetch_carousels: bool = True,
+    progress_cb: Optional[Any] = None,
+    stop_event: Optional[Any] = None,
+    global_state: Optional[InterceptorState] = None
+) -> list[dict]:
+    log.info(f"[scrape_search_tab] Keyword: '{keyword}' (scrolls limit: {scrolls_limit})")
+    state = InterceptorState()
+    
+    async def _on_resp(r):
+        await handle_response(r, state, source=f"search:{keyword}", fetch_images=fetch_images, fetch_reels=fetch_reels, fetch_carousels=fetch_carousels, post_filter=post_filter, progress_cb=progress_cb, global_state=global_state)
+    
+    page.on("response", lambda r: asyncio.ensure_future(_on_resp(r)))
+    
+    try:
+        clean_keyword = keyword.lstrip("#").strip()
+        await safe_goto(page, f"https://www.instagram.com/explore/search/keyword/?q={clean_keyword}")
+        await browser.human_delay(2, 4)
+
+        max_scrolls = scrolls_limit
+        no_new = 0
+        DOM_SEL = "a[href*='/p/'], a[href*='/reel/']"
+        
+        for i in range(max_scrolls):
+            if stop_event and stop_event.is_set():
+                break
+            prev_count = len(state.posts)
+            try: prev_dom = await page.locator(DOM_SEL).count()
+            except: prev_dom = 0
+
+            await page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
+            await asyncio.sleep(random.uniform(0.6, 1.2))
+            await page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
+
+            batch_loaded = False
+            wait_start = time.time()
+            while time.time() - wait_start < 15:
+                if stop_event and stop_event.is_set(): break
+                await asyncio.sleep(0.8)
+                try: curr_dom = await page.locator(DOM_SEL).count()
+                except: curr_dom = prev_dom
+                if len(state.posts) > prev_count or curr_dom > prev_dom:
+                    batch_loaded = True
+                    await asyncio.sleep(1.0)
+                    break
+
+            try: curr_dom_final = await page.locator(DOM_SEL).count()
+            except: curr_dom_final = 0
+
+            if batch_loaded and random.random() < 0.2:
+                try:
+                    posts_loc = await page.locator(DOM_SEL).all()
+                    if posts_loc:
+                        p_el = random.choice(posts_loc[-5:])
+                        await p_el.click()
+                        await browser.human_delay(1.5, 3)
+                        await page.keyboard.press("Escape")
+                        await asyncio.sleep(0.5)
+                except: pass
+
+            if await browser.check_challenge(page):
+                log.warning(f"[scrape_search_tab] Hit challenge on '{keyword}'")
+                break
+            
+            if len(state.posts) >= max_posts:
+                break
+                
+            no_new = no_new + 1 if len(state.posts) == prev_count else 0
+            if no_new >= 4 and curr_dom_final == prev_dom:
+                break
+                
+    except Exception as exc:
+        log.error(f"[scrape_search_tab] Error '{keyword}': {exc}")
+    
+    return _serialize_posts(state.posts)
+
+
+# ═══════════════════════════════════════════════════════
 #  Skill 5: master_viral_hunter
 # ═══════════════════════════════════════════════════════
 
@@ -567,16 +658,26 @@ async def master_viral_hunter(
     """
     log.info(f"[master_viral_hunter] Seed: '{seed_keyword}', limit: {time_limit_hours}h, deep: {include_deep_search}")
     
+    global_state = InterceptorState()
+    current_status = "Инициализация..."
+
+    def wrapped_cb(stats):
+        if progress_cb:
+            stats["status_text"] = current_status
+            progress_cb(stats)
+
     # Build PostFilter — enforce time_limit and user-set criteria
     f_data = filters or {}
     min_likes_val = f_data.get("min_likes", 0)
     excl_zero = f_data.get("exclude_zero_engagement", False)
+    only_ai = f_data.get("only_ai_topics", False)
     post_filter = PostFilter(
         min_likes=min_likes_val,
         exclude_zero_engagement=excl_zero,
         max_age_hours=time_limit_hours,
+        only_ai_topics=only_ai
     )
-    log.info(f"[master] PostFilter: min_likes={min_likes_val}, excl_zero={excl_zero}, max_age={time_limit_hours}h")
+    log.info(f"[master] PostFilter: min_likes={min_likes_val}, excl_zero={excl_zero}, max_age={time_limit_hours}h, only_ai={only_ai}")
 
     all_posts: list[dict] = []
     
@@ -600,8 +701,10 @@ async def master_viral_hunter(
         if stop_event and stop_event.is_set(): log.info("[master] Stop event set before Feed")
         else:
             log.info(f"[master] Step 2/4: Scraping home feed (Limit: {feed_limit})...")
+            current_status = "Сканируем Ленту..."
+            wrapped_cb({"collected": len(global_state.posts), "filtered": global_state.filtered_out, "reels": global_state.reels_count, "carousels": global_state.carousels_count, "photos": global_state.photos_count})
             try:
-                feed_posts = await scrape_feed(time_limit_hours, max_posts=feed_limit, post_filter=post_filter, scrolls_limit=max_scrolls, fetch_images=fetch_images, fetch_reels=fetch_reels, fetch_carousels=fetch_carousels, progress_cb=progress_cb, stop_event=stop_event)
+                feed_posts = await scrape_feed(time_limit_hours, max_posts=feed_limit, post_filter=post_filter, scrolls_limit=max_scrolls, fetch_images=fetch_images, fetch_reels=fetch_reels, fetch_carousels=fetch_carousels, progress_cb=wrapped_cb, stop_event=stop_event, global_state=global_state)
                 log.info(f"[master] Feed returned {len(feed_posts)} posts")
                 all_posts.extend(feed_posts)
             except Exception as exc:
@@ -613,8 +716,10 @@ async def master_viral_hunter(
         if stop_event and stop_event.is_set(): log.info("[master] Stop event set before Explore")
         else:
             log.info(f"[master] Step 3/4: Scraping explore (Limit: {explore_limit})...")
+            current_status = "Сканируем Интересное..."
+            wrapped_cb({"collected": len(global_state.posts), "filtered": global_state.filtered_out, "reels": global_state.reels_count, "carousels": global_state.carousels_count, "photos": global_state.photos_count})
             try:
-                explore_posts = await scrape_explore(time_limit_hours, max_posts=explore_limit, post_filter=post_filter, scrolls_limit=max_scrolls, fetch_images=fetch_images, fetch_reels=fetch_reels, fetch_carousels=fetch_carousels, progress_cb=progress_cb, stop_event=stop_event)
+                explore_posts = await scrape_explore(time_limit_hours, max_posts=explore_limit, post_filter=post_filter, scrolls_limit=max_scrolls, fetch_images=fetch_images, fetch_reels=fetch_reels, fetch_carousels=fetch_carousels, progress_cb=wrapped_cb, stop_event=stop_event, global_state=global_state)
                 log.info(f"[master] Explore returned {len(explore_posts)} posts")
                 all_posts.extend(explore_posts)
             except Exception as exc:
@@ -622,30 +727,92 @@ async def master_viral_hunter(
     else:
         log.info("[master] Step 3/4: Skipping explore by user setting.")
 
-    # Step 4 — Search keywords
-    log.info("[master] Step 4/4: Scraping keywords/search...")
-    if include_deep_search:
-        # Visit multiple related targets (up to 5 to avoid block)
-        for kw in keywords[:5]:
-            if stop_event and stop_event.is_set():
-                log.info(f"[master] Stop event set before keyword {kw}")
-                break
-            try:
-                all_posts.extend(await scrape_search(kw, time_limit_hours, max_posts=50, post_filter=post_filter, scrolls_limit=max_scrolls, fetch_images=fetch_images, fetch_reels=fetch_reels, fetch_carousels=fetch_carousels, progress_cb=progress_cb, stop_event=stop_event))
-            except Exception as exc:
-                log.error(f"[master] Search '{kw}' failed: {exc}")
-            await asyncio.sleep(random.uniform(2, 4))
+    search_ai_bulk = f_data.get("search_ai_bulk", False)
+    if search_ai_bulk:
+        log.info("[master] Step 4/4: RUNNING BULK AI CONCURRENT SEARCH...")
+        AI_SEARCH_KEYWORDS = [
+            "ChatGPT", "GPT", "OpenAI", "Claude", "Opus", "Sonnet", "Haiku", "Anthropic", 
+            "Gemini", "DeepMind", "DeepSeek", "Midjourney", "Copilot", "Cursor", "Perplexity", 
+            "Grok", "Mistral", "Mixtral", "Llama", "Sora", "DALL-E", "Diffusion", "Flux", 
+            "Runway", "Kling", "Pika", "Luma", "HeyGen", "ElevenLabs", "Synthesia", "Suno", 
+            "Udio", "Devin", "Windsurf", "Bolt", "Lovable", "Ollama", "Qwen", "LangChain", 
+            "AutoGPT", "ComfyUI", "Replicate", "AI", "LLM", "AGI", "prompt", "prompts", 
+            "prompting", "transformer", "embeddings", "fine-tuning", "tokens", "inference", 
+            "multimodal", "deepfake", "neural", "generative", "ai-generated", "ai-powered"
+        ]
+        
+        browser = StealthBrowser()
+        await browser.launch(headless=False, hidden=True)
+        sem = asyncio.Semaphore(3) # 3 concurrent tabs
+        
+        keywords_total = len(AI_SEARCH_KEYWORDS)
+        keywords_done = 0
+        current_status = f"Турбо-поиск: 0/{keywords_total}"
+        wrapped_cb({"collected": len(global_state.posts), "filtered": global_state.filtered_out, "reels": global_state.reels_count, "carousels": global_state.carousels_count, "photos": global_state.photos_count})
+
+        async def _worker(kw: str):
+            nonlocal keywords_done, current_status
+            async with sem:
+                if stop_event and stop_event.is_set(): return []
+                try:
+                    page = await browser.new_stealth_tab()
+                    results = await scrape_search_tab(
+                        browser=browser, page=page, keyword=kw,
+                        time_limit_hours=time_limit_hours, max_posts=50,
+                        post_filter=post_filter, scrolls_limit=7,
+                        fetch_images=fetch_images, fetch_reels=fetch_reels,
+                        fetch_carousels=fetch_carousels, progress_cb=wrapped_cb,
+                        stop_event=stop_event, global_state=global_state
+                    )
+                    await page.close()
+                    keywords_done += 1
+                    current_status = f"Турбо-поиск: {keywords_done}/{keywords_total}"
+                    wrapped_cb({"collected": len(global_state.posts), "filtered": global_state.filtered_out, "reels": global_state.reels_count, "carousels": global_state.carousels_count, "photos": global_state.photos_count})
+                    
+                    return results
+                except Exception as e:
+                    log.error(f"[master_worker] {kw} failed: {e}")
+                    return []
+                    
+        tasks = [_worker(kw) for kw in AI_SEARCH_KEYWORDS]
+        all_res = await asyncio.gather(*tasks)
+        for r in all_res:
+            all_posts.extend(r)
+            
+        await browser.rescue_window()
+        await browser.close()
+
     else:
-        # Safe mode: Iterate exactly over the provided keywords
-        for kw in keywords:
-            if stop_event and stop_event.is_set():
-                log.info(f"[master] Stop event set before keyword {kw}")
-                break
-            try:
-                all_posts.extend(await scrape_search(kw, time_limit_hours, max_posts=50, post_filter=post_filter, scrolls_limit=max_scrolls, fetch_images=fetch_images, fetch_reels=fetch_reels, fetch_carousels=fetch_carousels, progress_cb=progress_cb, stop_event=stop_event))
-            except Exception as exc:
-                log.error(f"[master] Search '{kw}' failed: {exc}")
-            await asyncio.sleep(random.uniform(2, 4))
+        # Step 4 — standard Search keywords
+        log.info("[master] Step 4/4: Scraping standard keywords/search...")
+        if include_deep_search:
+            # Visit multiple related targets (up to 5 to avoid block)
+            total_std = len(keywords[:5])
+            for i, kw in enumerate(keywords[:5], 1):
+                if stop_event and stop_event.is_set():
+                    log.info(f"[master] Stop event set before keyword {kw}")
+                    break
+                current_status = f"Поиск: {i}/{total_std}"
+                wrapped_cb({"collected": len(global_state.posts), "filtered": global_state.filtered_out, "reels": global_state.reels_count, "carousels": global_state.carousels_count, "photos": global_state.photos_count})
+                try:
+                    all_posts.extend(await scrape_search(kw, time_limit_hours, max_posts=50, post_filter=post_filter, scrolls_limit=max_scrolls, fetch_images=fetch_images, fetch_reels=fetch_reels, fetch_carousels=fetch_carousels, progress_cb=wrapped_cb, stop_event=stop_event, global_state=global_state))
+                except Exception as exc:
+                    log.error(f"[master] Search '{kw}' failed: {exc}")
+                await asyncio.sleep(random.uniform(2, 4))
+        else:
+            # Safe mode: Iterate exactly over the provided keywords
+            total_std = len(keywords)
+            for i, kw in enumerate(keywords, 1):
+                if stop_event and stop_event.is_set():
+                    log.info(f"[master] Stop event set before keyword {kw}")
+                    break
+                current_status = f"Поиск: {i}/{total_std}"
+                wrapped_cb({"collected": len(global_state.posts), "filtered": global_state.filtered_out, "reels": global_state.reels_count, "carousels": global_state.carousels_count, "photos": global_state.photos_count})
+                try:
+                    all_posts.extend(await scrape_search(kw, time_limit_hours, max_posts=50, post_filter=post_filter, scrolls_limit=max_scrolls, fetch_images=fetch_images, fetch_reels=fetch_reels, fetch_carousels=fetch_carousels, progress_cb=wrapped_cb, stop_event=stop_event, global_state=global_state))
+                except Exception as exc:
+                    log.error(f"[master] Search '{kw}' failed: {exc}")
+                await asyncio.sleep(random.uniform(2, 4))
 
     # Deduplicate
     seen: set[str] = set()

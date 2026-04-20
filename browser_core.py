@@ -76,6 +76,10 @@ class StealthBrowser:
             "--disable-dev-shm-usage",
             "--no-sandbox",
         ]
+        import sys as _sys
+        if _sys.platform == "win32":
+            # Windows-only stability flags
+            args += ["--disable-renderer-backgrounding", "--disable-backgrounding-occluded-windows"]
         if hidden and not headless:
             args.append("--window-position=-32000,-32000")
 
@@ -111,6 +115,17 @@ class StealthBrowser:
 
         log.info(f"Browser launched (headless={headless})")
         return self._page
+
+    async def new_stealth_tab(self) -> Page:
+        """Create a new tab in the existing browser context with stealth patches."""
+        if not self._context:
+            raise RuntimeError("Browser not launched. Call launch() first.")
+        from playwright_stealth import Stealth # type: ignore
+        stealth = Stealth()
+        page = await self._context.new_page()
+        await stealth.apply_stealth_async(page)
+        await page.route("**/*", _block_media)
+        return page
 
     async def rescue_window(self):
         """Returns the window position back to viewable area with micro-size as requested."""

@@ -1,9 +1,11 @@
 """
-web_launcher.py — Native window launcher for Banana Parser GUI.
-Uses pywebview (Edge WebView2) to show launcher.html as a desktop app.
+web_launcher.py — Native window launcher for FilPars GUI.
+Uses pywebview (Edge WebView2 on Windows, WKWebView on macOS) to show
+launcher.html as a desktop app.
 """
 import logging
 import os
+import sys
 from pathlib import Path
 
 import webview
@@ -11,7 +13,7 @@ import webview
 PROJECT_ROOT  = Path(__file__).parent.resolve()
 LAUNCHER_HTML = PROJECT_ROOT / "ui_templates" / "launcher.html"
 
-log = logging.getLogger("banana")
+log = logging.getLogger("filpars")
 
 global_window = None
 
@@ -41,13 +43,14 @@ def launch_gui(api_instance) -> None:
 
     try:
         global_window = webview.create_window(
-            title='🍌 Banana Parser',
+            title='FilPars',
             url=str(LAUNCHER_HTML.resolve()),
             js_api=api_instance,
             width=580,
-            height=620,
-            min_size=(400, 500),
+            height=660,
+            min_size=(400, 520),
             resizable=True,
+            frameless=False,  # Native OS title bar — required for macOS resize/drag
             background_color='#08080a',
         )
         log.info("   ✅ webview.create_window() — создано")
@@ -58,10 +61,13 @@ def launch_gui(api_instance) -> None:
 
     log.info("🚀 webview.start() — запуск event loop (блокирующий вызов)...")
     try:
-        import sys
         if sys.platform == "win32":
             webview.start(gui='edgechromium', debug=False)
+        elif sys.platform == "darwin":
+            # macOS: use default WKWebView (no extra args needed)
+            webview.start(debug=False)
         else:
+            # Linux: GTK WebView
             webview.start(debug=False)
         log.info("✅ webview.start() завершён (окно закрыто)")
     except Exception as e:

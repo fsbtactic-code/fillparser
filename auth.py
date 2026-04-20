@@ -30,7 +30,7 @@ DIM    = lambda t: _c("2", t)
 
 
 CUSTOM_CSS = """
-/* Banana Parser Liquid Glass Theme Override for Instagram Login */
+/* FilPars Liquid Glass Theme Override for Instagram Login */
 body, html, main, article {
     background-color: #08080a !important;
     color: #ffffff !important;
@@ -99,7 +99,7 @@ i[data-visualcompletion="css-img"] {
 def print_banner():
     print()
     print(_c("95", "  ╔══════════════════════════════════════════════════════════════╗"))
-    print(_c("95", "  ║") + BOLD("  🍌 Banana Master — Instagram Stealth Scraper              ") + _c("95", "║"))
+    print(_c("95", "  ║") + BOLD("🟦  FilPars — Instagram Stealth Scraper              ") + _c("95", "║"))
     print(_c("95", "  ║") + "                                                              " + _c("95", "║"))
     print(_c("95", "  ║") + "  " + CYAN("Авторизация Instagram") + "                                       " + _c("95", "║"))
     print(_c("95", "  ╚══════════════════════════════════════════════════════════════╝"))
@@ -212,7 +212,7 @@ async def run_auth():
 
         # --- INJECT CUSTOM CSS THEME ---
         try:
-            print(CYAN("  💅 Применяю фирменный дизайн Banana Parser..."))
+            print(CYAN("  💅 Применяю фирменный дизайн FilPars..."))
             await page.add_style_tag(content=CUSTOM_CSS)
         except Exception as e:
             pass
@@ -282,7 +282,7 @@ async def run_auth():
     print(f"     {DIM('python run_scraper.py')}")
     print()
     print(_c("95", "  ──────────────────────────────────────────────────────────────"))
-    print(f"  🍌 Создано {BOLD('Banana Master')} | t.me/banana_marketing")
+    print(f"  🟦 FilPars — t.me/banana_marketing")
     print(_c("95", "  ──────────────────────────────────────────────────────────────"))
     print()
 

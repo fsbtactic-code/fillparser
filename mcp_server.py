@@ -91,7 +91,7 @@ class LaunchGuiParams(BaseModel):
 
 # ── MCP Server ─────────────────────────────────────────
 
-app = Server("instagram-stealth-scraper")
+app = Server("filpars")
 
 
 @app.list_tools()
@@ -143,7 +143,7 @@ async def list_tools() -> list[Tool]:
         Tool(
             name="launch_gui",
             description=(
-                "🖥️ Запускает главное окно Banana Parser с графическим интерфейсом. "
+                "🖥️ Запускает главное окно FilPars с графическим интерфейсом. "
                 "Открывает нативное десктопное окно где пользователь может настроить "
                 "параметры парсинга, запустить сбор и увидеть дашборд с результатами. "
                 "Вызывается без параметров."
@@ -234,16 +234,20 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
             import sys
             import platform
 
-            # Open standard parser window
-            cmd_prefix = ["cmd", "/c", "start"] if platform.system() == "Windows" else ["osascript", "-e", 'tell app "Terminal" to do script "python run_scraper.py"']
-            if platform.system() == "Windows":
-                subprocess.Popen(cmd_prefix + [sys.executable, "run_scraper.py"])
+            plat = platform.system()
+            project_dir = str(PROJECT_ROOT)
+            py = sys.executable
+            if plat == "Windows":
+                subprocess.Popen(["cmd", "/c", "start", py, str(PROJECT_ROOT / "run_scraper.py")])
+            elif plat == "Darwin":
+                script = f'tell app "Terminal" to do script "cd {project_dir} && python3 run_scraper.py"'
+                subprocess.Popen(["osascript", "-e", script])
             else:
-                subprocess.Popen(cmd_prefix)
+                subprocess.Popen(["bash", "-c", f"gnome-terminal -- bash -c 'cd {project_dir} && python3 run_scraper.py; read'"])
 
             return [TextContent(
                 type="text",
-                text="Графическое окно парсера успешно запущено в отдельном процессе.",
+                text="Графическое окно FilPars успешно запущено в отдельном процессе.",
             )]
             
         elif name == "launch_auth_window":
@@ -251,12 +255,16 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
             import sys
             import platform
 
-            # Open authentication window
-            cmd_prefix = ["cmd", "/c", "start"] if platform.system() == "Windows" else ["osascript", "-e", 'tell app "Terminal" to do script "python auth.py"']
-            if platform.system() == "Windows":
-                subprocess.Popen(cmd_prefix + [sys.executable, "auth.py"])
+            plat = platform.system()
+            project_dir = str(PROJECT_ROOT)
+            py = sys.executable
+            if plat == "Windows":
+                subprocess.Popen(["cmd", "/c", "start", py, str(PROJECT_ROOT / "auth.py")])
+            elif plat == "Darwin":
+                script = f'tell app "Terminal" to do script "cd {project_dir} && python3 auth.py"'
+                subprocess.Popen(["osascript", "-e", script])
             else:
-                subprocess.Popen(cmd_prefix)
+                subprocess.Popen(["bash", "-c", f"gnome-terminal -- bash -c 'cd {project_dir} && python3 auth.py; read'"])
 
             return [TextContent(
                 type="text",
@@ -275,7 +283,7 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
 
 
 async def main() -> None:
-    log.info("Starting Instagram Stealth Scraper MCP server...")
+    log.info("Starting FilPars MCP server...")
     async with stdio_server() as (read_stream, write_stream):
         await app.run(read_stream, write_stream, app.create_initialization_options())
 
