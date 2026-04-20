@@ -142,6 +142,32 @@ def compute_velocity(post: PostData) -> float:
     return round(raw / hours, 2)
 
 
+async def auto_like_new_posts(page: Page, state: InterceptorState, global_state: Optional[InterceptorState], prev_count: int, max_likes: int = 20):
+    g_state = global_state if global_state else state
+    if g_state.liked_count >= max_likes:
+        return
+        
+    new_posts = state.posts[prev_count:]
+    for p in new_posts:
+        if g_state.liked_count >= max_likes:
+            break
+        if not p.shortcode:
+            continue
+            
+        try:
+            article_loc = page.locator(f"article:has(a[href*='/{p.shortcode}/'])").first
+            if await article_loc.count() > 0:
+                like_svg = article_loc.locator("svg[aria-label='Нравится'], svg[aria-label='Like']").first
+                if await like_svg.count() > 0:
+                    btn = like_svg.locator("..").first
+                    await btn.click()
+                    g_state.liked_count += 1
+                    log.info(f"[auto_like] ❤️ Liked '{p.shortcode}' (Total session likes: {g_state.liked_count}/{max_likes})")
+                    import asyncio, random
+                    await asyncio.sleep(random.uniform(0.7, 1.3))
+        except Exception:
+            pass
+
 def _serialize_posts(posts: list[PostData]) -> list[dict]:
     results = []
     for p in posts:
@@ -292,6 +318,7 @@ async def scrape_feed(
 
             # ── Dismiss any modal pop-ups before scrolling ──
             await dismiss_instagram_modals(page)
+            await auto_like_new_posts(page, state, global_state, prev_count, max_likes=20)
 
             # ── Scroll to the absolute bottom so IG's IntersectionObserver fires ──
             await page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
@@ -411,6 +438,7 @@ async def scrape_explore(
 
             # ── Dismiss any modal pop-ups before scrolling ──
             await dismiss_instagram_modals(page)
+            await auto_like_new_posts(page, state, global_state, prev_count, max_likes=20)
 
             # ── True bottom scroll — triggers IG's infinite-scroll loader ──
             await page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
@@ -529,6 +557,9 @@ async def scrape_search(
             except Exception:
                 prev_dom = 0
 
+            # ── Optimize Exploration ──
+            await auto_like_new_posts(page, state, global_state, prev_count, max_likes=20)
+
             # ── Scroll to true bottom so IG's sentinel enters viewport ──
             await page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
             await asyncio.sleep(random.uniform(0.8, 1.4))
@@ -646,6 +677,8 @@ async def scrape_search_tab(
             try: prev_dom = await page.locator(DOM_SEL).count()
             except: prev_dom = 0
 
+            await dismiss_instagram_modals(page)
+            await auto_like_new_posts(page, state, global_state, prev_count, max_likes=20)
             await page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
             await asyncio.sleep(random.uniform(0.6, 1.2))
             await page.evaluate("window.scrollTo(0, document.body.scrollHeight)")

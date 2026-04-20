@@ -138,6 +138,7 @@ class InterceptorState:
     oldest_timestamp: int = 0
     filtered_out: int = 0
     reels_count: int = 0
+    liked_count: int = 0
     carousels_count: int = 0
     photos_count: int = 0
 
