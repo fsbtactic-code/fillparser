@@ -469,7 +469,16 @@
           <div class="knob"></div>
         </label>
       </div>
-
+      <div class="card toggle-row" onclick="toggle('only_ru_en')" style="padding:16px 18px; margin-top:8px">
+        <span class="toggle-text has-icon active-icon-gray" id="lbl_ru_en">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+          Только язык RU / EN
+        </span>
+        <label class="switch" onclick="event.stopPropagation()">
+          <input type="checkbox" id="only_ru_en" onchange="syncUI()">
+          <div class="knob"></div>
+        </label>
+      </div>
       <div class="section-title">Типы медиа</div>
       
       <div class="card toggle-row" onclick="toggle('fetch_images')" style="padding:14px 18px">
@@ -550,6 +559,7 @@
       'search_ai_bulk': 'lbl_search_ai_bulk',
       'no_zero': 'lbl_no_zero',
       'only_ai_topics': 'lbl_ai_topics',
+      'only_ru_en': 'lbl_ru_en',
       'fetch_images': 'lbl_img',
       'fetch_reels': 'lbl_reels',
       'fetch_carousels': 'lbl_carousels'
@@ -568,7 +578,7 @@
 
   const last = JSON.parse(localStorage.getItem('filpars_last_config') || '{}');
   const fields = ['keyword','depth','top_n','explore_limit','explore_scrolls','feed_limit','feed_scrolls','min_likes','ai_bulk_threads','ai_bulk_scrolls'];
-  const checks = ['scrape_explore','scrape_feed','search_ai_bulk','no_zero','only_ai_topics','fetch_images','fetch_reels','fetch_carousels'];
+  const checks = ['scrape_explore','scrape_feed','search_ai_bulk','no_zero','only_ai_topics','only_ru_en','fetch_images','fetch_reels','fetch_carousels'];
   fields.forEach(f => { if(last[f] !== undefined){ const el = document.getElementById(f); if(el) el.value = last[f]; }});
   checks.forEach(c => { if(last[c] !== undefined){ const el = document.getElementById(c); if(el) el.checked = last[c]; }});
   syncUI(); // init states

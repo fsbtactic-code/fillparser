@@ -70,6 +70,7 @@ class PostFilter:
     max_age_hours: Optional[int] = None
     exclude_zero_engagement: bool = False  # skip posts with 0 likes AND 0 comments
     only_ai_topics: bool = False
+    only_ru_en: bool = False
 
     def matches(self, post: "PostData") -> bool:
         """Return True if the post passes all filter criteria."""
@@ -102,6 +103,17 @@ class PostFilter:
         # IA filter (Strict Text Matching)
         if self.only_ai_topics and not text_has_ai_topics(post.caption_text):
             return False
+
+        # Language detection filter
+        if self.only_ru_en and getattr(post, 'caption_text', ''):
+            try:
+                from langdetect import detect
+                lang = detect(post.caption_text)
+                if lang not in ['ru', 'en', 'uk', 'be', 'kk']:
+                    return False
+            except Exception:
+                pass
+
             
         return True
 

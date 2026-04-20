@@ -223,6 +223,7 @@ class WebWorkerApi:
             "min_posts_target":       gui_data.get("min_posts", 10),
             "enable_deep_search":     gui_data.get("deep_search", False),
             "only_ai_topics":         gui_data.get("only_ai_topics", False),
+            "only_ru_en":             gui_data.get("only_ru_en", False),
             "search_ai_bulk":         gui_data.get("search_ai_bulk", False),
             "ai_bulk_threads":        gui_data.get("ai_bulk_threads", 3),
             "ai_bulk_scrolls":        gui_data.get("ai_bulk_scrolls", 0),

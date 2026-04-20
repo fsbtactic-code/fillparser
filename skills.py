@@ -799,13 +799,15 @@ async def master_viral_hunter(
     min_likes_val = f_data.get("min_likes", 0)
     excl_zero = f_data.get("exclude_zero_engagement", False)
     only_ai = f_data.get("only_ai_topics", False)
+    only_ru_en = f_data.get("only_ru_en", False)
     post_filter = PostFilter(
         min_likes=min_likes_val,
         exclude_zero_engagement=excl_zero,
         max_age_hours=time_limit_hours,
-        only_ai_topics=only_ai
+        only_ai_topics=only_ai,
+        only_ru_en=only_ru_en
     )
-    log.info(f"[master] PostFilter: min_likes={min_likes_val}, excl_zero={excl_zero}, max_age={time_limit_hours}h, only_ai={only_ai}")
+    log.info(f"[master] PostFilter: min_likes={min_likes_val}, excl_zero={excl_zero}, max_age={time_limit_hours}h, only_ai={only_ai}, only_ru_en={only_ru_en}")
 
     all_posts: list[dict] = []
     
@@ -889,7 +891,8 @@ async def master_viral_hunter(
                 min_likes=post_filter.min_likes,
                 exclude_zero_engagement=post_filter.exclude_zero_engagement,
                 max_age_hours=post_filter.max_age_hours,
-                only_ai_topics=False
+                only_ai_topics=False,
+                only_ru_en=post_filter.only_ru_en
             )
             
             async with sem:
