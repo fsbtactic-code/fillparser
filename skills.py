@@ -340,6 +340,20 @@ async def scrape_feed(
                             await p_el.click()
                             await browser.human_delay(2, 5)
                             await page.keyboard.press("Escape")
+                            await asyncio.sleep(0.5)
+                            try:
+                                await page.evaluate("""() => {
+                                    const svg = document.querySelector('svg[aria-label="Close"], svg[aria-label="Закрыть"]');
+                                    if(svg) {
+                                        const btn = svg.closest('[role="button"], button, a');
+                                        if(btn) btn.click();
+                                    }
+                                }""")
+                            except: pass
+                            try: await page.mouse.click(10, 10)
+                            except: pass
+                            await asyncio.sleep(0.5)
+                            await page.keyboard.press("Escape")
                             await asyncio.sleep(1)
                 except Exception:
                     pass
@@ -468,6 +482,20 @@ async def scrape_explore(
                             log.debug("[Human] Opening random post from Explore...")
                             await p_el.click()
                             await browser.human_delay(2, 5)
+                            await page.keyboard.press("Escape")
+                            await asyncio.sleep(0.5)
+                            try:
+                                await page.evaluate("""() => {
+                                    const svg = document.querySelector('svg[aria-label="Close"], svg[aria-label="Закрыть"]');
+                                    if(svg) {
+                                        const btn = svg.closest('[role="button"], button, a');
+                                        if(btn) btn.click();
+                                    }
+                                }""")
+                            except: pass
+                            try: await page.mouse.click(10, 10)
+                            except: pass
+                            await asyncio.sleep(0.5)
                             await page.keyboard.press("Escape")
                             await asyncio.sleep(1)
                 except Exception:
@@ -598,6 +626,20 @@ async def scrape_search(
                             await p_el.click()
                             await browser.human_delay(2, 5)
                             await page.keyboard.press("Escape")
+                            await asyncio.sleep(0.5)
+                            try:
+                                await page.evaluate("""() => {
+                                    const svg = document.querySelector('svg[aria-label="Close"], svg[aria-label="Закрыть"]');
+                                    if(svg) {
+                                        const btn = svg.closest('[role="button"], button, a');
+                                        if(btn) btn.click();
+                                    }
+                                }""")
+                            except: pass
+                            try: await page.mouse.click(10, 10)
+                            except: pass
+                            await asyncio.sleep(0.5)
+                            await page.keyboard.press("Escape")
                             await asyncio.sleep(1)
                 except Exception:
                     pass
@@ -708,6 +750,20 @@ async def scrape_search_tab(
                         p_el = random.choice(posts_loc[-5:])
                         await p_el.click()
                         await browser.human_delay(1.5, 3)
+                        await page.keyboard.press("Escape")
+                        await asyncio.sleep(0.5)
+                        try:
+                            await page.evaluate("""() => {
+                                const svg = document.querySelector('svg[aria-label="Close"], svg[aria-label="Закрыть"]');
+                                if(svg) {
+                                    const btn = svg.closest('[role="button"], button, a');
+                                    if(btn) btn.click();
+                                }
+                            }""")
+                        except: pass
+                        try: await page.mouse.click(10, 10)
+                        except: pass
+                        await asyncio.sleep(0.5)
                         await page.keyboard.press("Escape")
                         await asyncio.sleep(0.5)
                 except: pass
