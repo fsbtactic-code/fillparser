@@ -423,10 +423,14 @@
             <div class="knob"></div>
           </label>
         </div>
-        <div class="input-grid" id="ai_bulk_settings" style="display:none; grid-template-columns: 1fr; border-top: 1px solid rgba(0,89,255,0.2); padding-top: 10px; margin-top: 5px;">
+        <div class="input-grid" id="ai_bulk_settings" style="display:none; grid-template-columns: 1fr 1fr; border-top: 1px solid rgba(0,89,255,0.2); padding-top: 10px; margin-top: 5px;">
            <div class="form-group" style="margin: 0;">
-              <label class="label" style="font-size: 0.75rem;"><svg class="icon" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg> Одновременных вкладок (потоков)</label>
+              <label class="label" style="font-size: 0.75rem;"><svg class="icon" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg> Потоков</label>
               <input type="number" id="ai_bulk_threads" class="input" value="3" min="1" max="10" style="border-color:rgba(0,89,255,0.2);">
+           </div>
+           <div class="form-group" style="margin: 0;">
+              <label class="label" style="font-size: 0.75rem;"><svg class="icon" viewBox="0 0 24 24"><path d="M12 20v-8m0 0V4m0 8h8m-8 0H4"></path></svg> Скроллов (0 = авто 5-15)</label>
+              <input type="number" id="ai_bulk_scrolls" class="input" value="0" min="0" style="border-color:rgba(0,89,255,0.2);">
            </div>
         </div>
       </div>
@@ -563,7 +567,7 @@
   }
 
   const last = JSON.parse(localStorage.getItem('filpars_last_config') || '{}');
-  const fields = ['keyword','depth','top_n','explore_limit','explore_scrolls','feed_limit','feed_scrolls','min_likes','ai_bulk_threads'];
+  const fields = ['keyword','depth','top_n','explore_limit','explore_scrolls','feed_limit','feed_scrolls','min_likes','ai_bulk_threads','ai_bulk_scrolls'];
   const checks = ['scrape_explore','scrape_feed','search_ai_bulk','no_zero','only_ai_topics','fetch_images','fetch_reels','fetch_carousels'];
   fields.forEach(f => { if(last[f] !== undefined){ const el = document.getElementById(f); if(el) el.value = last[f]; }});
   checks.forEach(c => { if(last[c] !== undefined){ const el = document.getElementById(c); if(el) el.checked = last[c]; }});

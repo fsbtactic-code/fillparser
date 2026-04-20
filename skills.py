@@ -830,6 +830,7 @@ async def master_viral_hunter(
 
     search_ai_bulk = f_data.get("search_ai_bulk", False)
     ai_bulk_threads = int(f_data.get("ai_bulk_threads", 3))
+    ai_bulk_scrolls = int(f_data.get("ai_bulk_scrolls", 0))
     if search_ai_bulk:
         log.info(f"[master] Step 4/4: RUNNING BULK AI CONCURRENT SEARCH ({ai_bulk_threads} threads)...")
         from interceptor import AI_KEYWORDS
@@ -847,7 +848,9 @@ async def master_viral_hunter(
             nonlocal keywords_done, current_status
             
             kw_u = kw.upper()
-            if kw_u in ["CHATGPT", "GPT", "OPENAI", "CLAUDE", "OPUS", "SONNET", "HAIKU", "ANTHROPIC", "GEMINI"]:
+            if ai_bulk_scrolls > 0:
+                dyn_scrolls = ai_bulk_scrolls
+            elif kw_u in ["CHATGPT", "GPT", "OPENAI", "CLAUDE", "OPUS", "SONNET", "HAIKU", "ANTHROPIC", "GEMINI"]:
                 dyn_scrolls = 15
             elif kw_u in ["ELEVENLABS", "GROK"]:
                 dyn_scrolls = 10

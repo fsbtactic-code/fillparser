@@ -225,6 +225,7 @@ class WebWorkerApi:
             "only_ai_topics":         gui_data.get("only_ai_topics", False),
             "search_ai_bulk":         gui_data.get("search_ai_bulk", False),
             "ai_bulk_threads":        gui_data.get("ai_bulk_threads", 3),
+            "ai_bulk_scrolls":        gui_data.get("ai_bulk_scrolls", 0),
         }
 
         log.info(f"📋 Настройки: keyword={settings['seed_keyword']}, depth={settings['time_limit_hours']}h")
