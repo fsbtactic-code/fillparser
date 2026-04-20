@@ -30,68 +30,177 @@ DIM    = lambda t: _c("2", t)
 
 
 CUSTOM_CSS = """
-/* FilPars Liquid Glass Theme Override for Instagram Login */
-body, html, main, article {
-    background-color: #08080a !important;
-    color: #ffffff !important;
+/* ═══════════════════════════════════════════════
+   FilPars — Dark Blue Glass Theme for Instagram
+   ═══════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+
+/* ── Base ── */
+*, *::before, *::after {
+    box-sizing: border-box !important;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+}
+html, body {
+    background: #08080a !important;
+    min-height: 100vh !important;
+}
+body {
+    background:
+        radial-gradient(ellipse 60% 40% at 20% 20%, rgba(0,89,255,0.12) 0%, transparent 70%),
+        radial-gradient(ellipse 50% 35% at 80% 80%, rgba(0,40,120,0.1) 0%, transparent 70%),
+        #08080a !important;
 }
 
-/* Force dark backgrounds on container elements */
-div {
-    background-color: transparent !important;
-}
-.x1qjc9v5, .x9f619 {
-    background-color: transparent !important;
-    border-color: rgba(255, 255, 255, 0.1) !important;
-    color: #fff !important;
+/* ── Hide Instagram header/footer noise ── */
+nav, footer, section > section > div:not(:first-child) {
+    display: none !important;
 }
 
-/* Main login box targeting */
-form, div[class*="x1cy8zhl"], div[class*="x1xy1w5w"] {
-    background: rgba(255, 255, 255, 0.05) !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+/* ── Center the login form like a floating card ── */
+main, [role="main"] {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-height: 100vh !important;
+    background: transparent !important;
+}
+
+/* ── The login box itself ── */
+form, div[class*="x1hc1fzr"], div[class*="x1cy8zhl"],
+article > div, section > main > div > article {
+    background: rgba(255,255,255,0.04) !important;
+    border: 1px solid rgba(0,89,255,0.25) !important;
     border-radius: 20px !important;
-    backdrop-filter: blur(20px) !important;
-    box-shadow: 0 0 40px rgba(255, 46, 147, 0.2) !important;
+    backdrop-filter: blur(24px) !important;
+    -webkit-backdrop-filter: blur(24px) !important;
+    box-shadow:
+        0 0 0 1px rgba(0,89,255,0.1),
+        0 8px 32px rgba(0,0,0,0.6),
+        0 0 60px rgba(0,89,255,0.12),
+        inset 0 1px 0 rgba(255,255,255,0.06) !important;
+    padding: 32px !important;
 }
 
-/* Inputs */
-input {
-    background-color: rgba(0, 0, 0, 0.6) !important;
-    border: 1px solid rgba(255, 255, 255, 0.2) !important;
-    color: #fff !important;
+/* ── All backgrounds transparent ── */
+div, section, article, aside {
+    background-color: transparent !important;
+}
+
+/* ── Instagram logo ── */
+i[data-visualcompletion="css-img"] {
+    filter: brightness(0) invert(1) !important;
+    opacity: 0.9 !important;
+}
+
+/* ── Inputs ── */
+input[type="text"],
+input[type="password"],
+input[name="username"],
+input[name="password"] {
+    background: rgba(0,0,0,0.5) !important;
+    border: 1.5px solid rgba(255,255,255,0.1) !important;
     border-radius: 12px !important;
+    color: #fff !important;
+    padding: 13px 16px !important;
+    font-size: 14px !important;
+    font-weight: 400 !important;
+    transition: border-color 0.2s, box-shadow 0.2s !important;
+    caret-color: #0059FF !important;
 }
-input:focus {
-    border-color: #ff2e93 !important;
+input[type="text"]:focus,
+input[type="password"]:focus {
+    border-color: rgba(0,89,255,0.8) !important;
+    box-shadow: 0 0 0 3px rgba(0,89,255,0.15) !important;
+    outline: none !important;
+}
+input::placeholder {
+    color: rgba(255,255,255,0.35) !important;
 }
 
-/* Login Button */
-button[type="submit"], div[role="button"][tabindex="0"] {
-    background: linear-gradient(135deg, #ff2e93, #ff8a00) !important;
+/* ── Password eye toggle ── */
+button[type="button"]._aao5 span,
+div[role="button"] span {
+    color: rgba(255,255,255,0.5) !important;
+}
+
+/* ── Primary submit button ── */
+button[type="submit"] {
+    background: linear-gradient(135deg, #0059FF 0%, #0038CC 100%) !important;
     border: none !important;
     border-radius: 12px !important;
     color: #fff !important;
     font-weight: 600 !important;
+    font-size: 14px !important;
+    padding: 13px !important;
+    width: 100% !important;
+    cursor: pointer !important;
+    letter-spacing: 0.02em !important;
+    box-shadow: 0 4px 14px rgba(0,89,255,0.4) !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
     opacity: 1 !important;
-    transition: all 0.2s ease !important;
 }
 button[type="submit"]:hover {
-    transform: scale(1.02);
-    box-shadow: 0 4px 15px rgba(255, 46, 147, 0.4) !important;
+    background: linear-gradient(135deg, #0070FF 0%, #004FD4 100%) !important;
+    box-shadow: 0 6px 20px rgba(0,89,255,0.55) !important;
+    transform: translateY(-1px) !important;
+}
+button[type="submit"]:active {
+    transform: translateY(0) !important;
+}
+button[type="submit"]:disabled {
+    background: rgba(0,89,255,0.3) !important;
+    box-shadow: none !important;
+    transform: none !important;
 }
 
-/* Text */
-span, p, h1, h2 {
-    color: #e0e0e0 !important;
+/* ── OR divider ── */
+div._ak18,
+div[style*="border-top"] {
+    border-color: rgba(255,255,255,0.1) !important;
 }
+
+/* ── Links ── */
 a {
-    color: #ff8a00 !important;
+    color: rgba(0,140,255,0.9) !important;
+    text-decoration: none !important;
+}
+a:hover { color: #fff !important; }
+
+/* ── Text ── */
+span, p, label {
+    color: rgba(255,255,255,0.75) !important;
+}
+h1, h2, h3 { color: #fff !important; font-weight: 600 !important; }
+
+/* ── Facebook login button ── */
+button[type="button"]._acan {
+    background: rgba(24,119,242,0.15) !important;
+    border: 1px solid rgba(24,119,242,0.3) !important;
+    border-radius: 12px !important;
+    color: #4a9eff !important;
+}
+button[type="button"]._acan svg path { fill: #4a9eff !important; }
+
+/* ── Helper text / error ── */
+p[role="alert"], span[style*="color"] {
+    color: #ff6b6b !important;
 }
 
-/* Instagram sprite logo inversion */
-i[data-visualcompletion="css-img"] {
-    filter: invert(1) hue-rotate(180deg) brightness(2) !important;
+/* ── FilPars watermark overlay ── */
+body::after {
+    content: 'FilPars';
+    position: fixed;
+    bottom: 20px;
+    right: 24px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(0,89,255,0.4);
+    pointer-events: none;
+    z-index: 99999;
+    font-family: 'Inter', sans-serif !important;
 }
 """
 
@@ -188,16 +297,18 @@ async def run_auth():
 
         page = await context.new_page()
 
-        # Navigate to Instagram login (Fast commit + Selector polling)
+        # Navigate to instagram.com root (avoids 429 on /accounts/login/ direct)
         print(CYAN("  🌐 Подключаюсь к Instagram..."))
         try:
-            await page.goto("https://www.instagram.com/accounts/login/", wait_until="commit", timeout=30000)
-            # Wait for any form element or cookie banner
-            await page.wait_for_selector('input[name="username"], button:has-text("Allow"), button:has-text("Разрешить")', timeout=60000)
-            print(GREEN("  ✅ Страница логина загружена."))
+            await page.goto("https://www.instagram.com/", wait_until="commit", timeout=30000)
+            # Wait for login form OR already logged-in feed
+            await page.wait_for_selector(
+                'input[name="username"], a[href="/"][role="link"], button:has-text("Log in"), button:has-text("Войти")',
+                timeout=60000
+            )
+            print(GREEN("  ✅ Instagram загружен."))
         except Exception as e:
             print(YELLOW(f"  ⚠️  Медленная загрузка (но продолжаем): {e}"))
-
         # Dismiss cookie banner if present
         try:
             cookie_btn = await page.wait_for_selector(
