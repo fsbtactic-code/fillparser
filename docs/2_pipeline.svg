@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 700" width="700" height="700" style="background-color:#08080a; font-family: 'Inter', sans-serif;">
+    <defs>
+        <linearGradient id="gBlue" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#0A84FF" />
+            <stop offset="100%" stop-color="#0A84FF" stop-opacity="0.6"/>
+        </linearGradient>
+        <linearGradient id="gGreen" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#30D158" />
+            <stop offset="100%" stop-color="#30D158" stop-opacity="0.6"/>
+        </linearGradient>
+        <linearGradient id="gPurple" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#5E5CE6" />
+            <stop offset="100%" stop-color="#5E5CE6" stop-opacity="0.6"/>
+        </linearGradient>
+        <linearGradient id="gRed" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#FF453A" />
+            <stop offset="100%" stop-color="#FF453A" stop-opacity="0.6"/>
+        </linearGradient>
+        <style>
+            .title { fill: #f3f4f6; font-size: 28px; font-weight: bold; text-anchor: middle; }
+            .box-text { fill: #ffffff; font-size: 16px; font-weight: bold; text-anchor: middle; }
+            .sub-text { fill: rgba(255,255,255,0.7); font-size: 13px; text-anchor: middle; }
+            .arrow { stroke: rgba(255,255,255,0.3); stroke-width: 3; fill: none; }
+            .arrow-head { fill: rgba(255,255,255,0.3); }
+            .rect-box { rx: 12; ry: 12; stroke: rgba(255,255,255,0.1); stroke-width: 2; }
+        </style>
+        <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+          <polygon points="0 0, 10 3.5, 0 7" class="arrow-head" />
+        </marker>
+    </defs>
+    <text x="350" y="50" class="title">Воронка сбора (master_viral_hunter)</text>
+    <rect x="250" y="100" width="200" height="70" fill="url(#gPurple)" class="rect-box" />
+    <text x="350.0" y="133.0" class="box-text">ШАГ 1: Поиск Ключей</text>
+    <text x="350.0" y="153.0" class="sub-text">expand_search_keywords()</text>
+    <line x1="350" y1="170" x2="350" y2="220" class="arrow" marker-end="url(#arrowhead)"/>
+    <rect x="250" y="220" width="200" height="70" fill="url(#gBlue)" class="rect-box" />
+    <text x="350.0" y="253.0" class="box-text">ШАГ 2: Моя Лента</text>
+    <text x="350.0" y="273.0" class="sub-text">scrape_feed() -> Сбор ленты</text>
+    <line x1="350" y1="290" x2="350" y2="340" class="arrow" marker-end="url(#arrowhead)"/>
+    <rect x="250" y="340" width="200" height="70" fill="url(#gBlue)" class="rect-box" />
+    <text x="350.0" y="373.0" class="box-text">ШАГ 3: Интересное</text>
+    <text x="350.0" y="393.0" class="sub-text">scrape_explore() -> Рекомендации</text>
+    <line x1="350" y1="410" x2="350" y2="460" class="arrow" marker-end="url(#arrowhead)"/>
+    <rect x="250" y="460" width="200" height="80" fill="url(#gGreen)" class="rect-box" />
+    <text x="350.0" y="498.0" class="box-text">ШАГ 4: Турбо AI Поиск</text>
+    <text x="350.0" y="518.0" class="sub-text">Многопоток по 117 ИИ-словам (3 вкладки)</text>
+    <line x1="350" y1="540" x2="350" y2="590" class="arrow" marker-end="url(#arrowhead)"/>
+    <rect x="250" y="590" width="200" height="70" fill="url(#gRed)" class="rect-box" />
+    <text x="350.0" y="623.0" class="box-text">ШАГ 5: Очистка</text>
+    <text x="350.0" y="643.0" class="sub-text">Удаление дубликатов, Фильтр 0 охвата</text>
+    
+</svg>
