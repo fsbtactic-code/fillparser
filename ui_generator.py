@@ -893,7 +893,7 @@ def generate_results_html(posts: list[dict[str, Any]], output_path: str) -> None
   <div class="header">
     <div class="header-left">
       <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="#0A84FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:8px; width:22px; height:22px;"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg><h1 style="background: linear-gradient(135deg, var(--accent-1), var(--accent-2)); -webkit-background-clip: text; color: transparent;">FilPars</h1>
-      <p>РќР°Р№РґРµРЅРѕ <span>{total_posts}</span> РїРѕСЃС‚РѕРІ вЂ” СЂР°РЅР¶РёСЂРѕРІР°РЅРѕ РїРѕ РРЅРґРµРєСЃСѓ Р’РёСЂР°Р»СЊРЅРѕСЃС‚Рё</p>
+      <p>Найдено <span>{total_posts}</span> постов — ранжировано по Индексу Виральности</p>
     </div>
   </div>
 
@@ -934,7 +934,7 @@ def generate_results_html(posts: list[dict[str, Any]], output_path: str) -> None
       <button class="settings-toggle" id="settings-btn" onclick="toggleSettings()">
         ⚙️ Фильтры <span class="arrow">▼</span>
       </button>
-      <button class="btn" onclick="selectAll()">в‘ Р’С‹Р±СЂР°С‚СЊ РІСЃРµ</button>
+      <button class="btn" onclick="selectAll()">☑ Выбрать все</button>
       <button class="btn btn-primary" onclick="exportCSV()">📥 Скачать CSV</button>
       <button class="btn btn-sheets" onclick="exportToSheets()">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM7 10h2v7H7zm4-3h2v10h-2zm4 6h2v4h-2z"/></svg>
@@ -980,7 +980,7 @@ def generate_results_html(posts: list[dict[str, Any]], output_path: str) -> None
           </div>
         </div>
         <div class="setting-group">
-          <div class="setting-label">рџ”Ґ РРЅРґРµРєСЃ РІРёСЂР°Р»СЊРЅРѕСЃС‚Рё</div>
+          <div class="setting-label">🔥 Индекс виральности</div>
           <div class="setting-range">
             <input type="number" class="setting-input" id="f-min-velocity" placeholder="мин" min="0">
             <span class="setting-sep">—</span>
@@ -988,7 +988,7 @@ def generate_results_html(posts: list[dict[str, Any]], output_path: str) -> None
           </div>
         </div>
         <div class="setting-group">
-          <div class="setting-label">РСЃРєР»СЋС‡РµРЅРёСЏ</div>
+          <div class="setting-label">Исключения</div>
           <div class="toggle-row" style="margin-top: 0.2rem;">
             <label class="toggle">
               <input type="checkbox" id="f-exclude-zero">
@@ -1027,9 +1027,9 @@ def generate_results_html(posts: list[dict[str, Any]], output_path: str) -> None
             <th class="th-velocity" onclick="sortTable(8)">❤/ч</th>
             <th class="th-velocity" onclick="sortTable(9)">💬/ч</th>
             <th class="th-velocity" onclick="sortTable(10)">👁/ч</th>
-            <th class="th-velocity" onclick="sortTable(11)">РРЅРґРµРєСЃ рџ”Ґ</th>
+            <th class="th-velocity" onclick="sortTable(11)">Индекс 🔥</th>
             <th class="th-right" onclick="sortTable(12)">Возраст</th>
-            <th onclick="sortTable(13)">РСЃС‚РѕС‡РЅРёРє</th>
+            <th onclick="sortTable(13)">Источник</th>
           </tr>
         </thead>
         <tbody id="table-body">
