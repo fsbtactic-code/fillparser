@@ -104,15 +104,28 @@ class PostFilter:
         if self.only_ai_topics and not text_has_ai_topics(post.caption_text):
             return False
 
-        # Language detection filter
+        # Advanced Language detection filter (RU/EN precision)
         if self.only_ru_en and getattr(post, 'caption_text', ''):
-            try:
-                from langdetect import detect
-                lang = detect(post.caption_text)
-                if lang not in ['ru', 'en', 'uk', 'be', 'kk']:
-                    return False
-            except Exception:
+            import re
+            # Fast-path for Russian/Cyrillic
+            if re.search(r'[а-яА-ЯёЁ]', post.caption_text):
                 pass
+            else:
+                try:
+                    # Clean the text of hashtags, mentions, and URLs which confuse the detector
+                    clean_text = re.sub(r'#[\w_]+|@[\w_]+|https?://\S+', '', post.caption_text)
+                    clean_text = re.sub(r'[^\w\s]', '', clean_text).strip()
+                    
+                    if len(clean_text) > 15:
+                        from langdetect import detect
+                        lang = detect(clean_text)
+                        
+                        # Blacklist the most common spam regions in AI niches to avoid false-rejecting English
+                        banned_langs = {'hi', 'ar', 'id', 'es', 'pt', 'tr', 'fa', 'ur', 'th', 'vi', 'bn', 'ta', 'te', 'mr', 'ja', 'zh-cn', 'zh-tw', 'ko'}
+                        if lang in banned_langs:
+                            return False
+                except Exception:
+                    pass
 
             
         return True
