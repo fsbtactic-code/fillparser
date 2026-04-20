@@ -414,15 +414,24 @@
         <input type="number" id="feed_limit" class="input" value="40" min="0">
       </div>
 
-      <div class="card toggle-row" onclick="toggle('search_ai_bulk')" style="padding:16px 18px; margin-bottom:14px; border: 1px solid rgba(255, 46, 147, 0.3); background: rgba(255,46,147, 0.05);">
+      <div class="card toggle-row" onclick="toggle('search_ai_bulk')" style="padding:16px 18px; margin-bottom:6px; border: 1px solid rgba(0,89,255,0.35); background: rgba(0,89,255,0.06);">
         <span class="toggle-text has-icon active-icon-gray" id="lbl_search_ai_bulk">
-          <svg class="icon" viewBox="0 0 24 24" style="stroke: #ff2e93;"><path d="M12 2l3 6 6 1-4 4 1 6-6-3-6 3 1-6-4-4 6-1 3-6z"/></svg>
-          <span style="color: #ff2e93; font-weight: 500;">Турбо-поиск ИИ (Многопоток)</span>
+          <svg class="icon" viewBox="0 0 24 24" style="stroke:#0A84FF;"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          <span>
+            <span style="color:#0A84FF; font-weight:600; display:block;">Посты из поиска про ИИ</span>
+            <span style="color:rgba(255,255,255,0.35); font-size:0.72rem; font-weight:300;">ChatGPT, Claude, Gemini, Midjourney… · 60+ ключей · многопоток 2–4 вкладки</span>
+          </span>
         </span>
         <label class="switch" onclick="event.stopPropagation()">
-          <input type="checkbox" id="search_ai_bulk" onchange="syncUI()">
+          <input type="checkbox" id="search_ai_bulk" onchange="syncUI(); document.getElementById('ai_search_hint').style.display = this.checked ? 'block' : 'none';">
           <div class="knob"></div>
         </label>
+      </div>
+      <div id="ai_search_hint" style="display:none; margin-bottom:12px; padding:10px 14px; background:rgba(0,89,255,0.05); border-radius:10px; border:1px solid rgba(0,89,255,0.15);">
+        <div style="font-size:0.7rem; color:rgba(255,255,255,0.35); line-height:1.7;">
+          <strong style="color:rgba(0,140,255,0.7);">Полный список ключей:</strong><br>
+          ChatGPT · GPT · OpenAI · Claude · Anthropic · Gemini · DeepMind · DeepSeek · Midjourney · Copilot · Cursor · Perplexity · Grok · Mistral · Mixtral · Llama · Sora · DALL-E · Diffusion · Flux · Runway · Kling · Pika · Luma · HeyGen · ElevenLabs · Synthesia · Suno · Udio · Devin · Windsurf · Bolt · Lovable · Ollama · Qwen · LangChain · AutoGPT · ComfyUI · Replicate · AI · LLM · AGI · prompt · transformer · embeddings · fine-tuning · tokens · inference · multimodal · deepfake · neural · generative · ai-generated · ai-powered
+        </div>
       </div>
 
       <div class="section-title">Фильтры</div>

@@ -33,6 +33,58 @@ OUTPUT_DIR = Path(__file__).parent / "output"
 OUTPUT_DIR.mkdir(exist_ok=True)
 
 
+async def dismiss_instagram_modals(page) -> None:
+    """Silently close Instagram pop-ups that break scrolling.
+
+    Handles:
+    - 'Turn on notifications' dialog
+    - Cookie / GDPR banners
+    - 'Save your login info?' prompt
+    - 'Add to home screen' sheet
+    - Any generic overlay 'Not Now' / 'Dismiss' / 'Close' button
+    """
+    DISMISS_JS = """
+    (() => {
+        const texts = [
+            'not now', '\u043d\u0435 \u0441\u0435\u0439\u0447\u0430\u0441', '\u043f\u043e\u0437\u0436\u0435',
+            'dismiss', 'close', '\u0437\u0430\u043a\u0440\u044b\u0442\u044c',
+            'cancel', '\u043e\u0442\u043c\u0435\u043d\u0430',
+            'allow', '\u0440\u0430\u0437\u0440\u0435\u0448\u0438\u0442\u044c',
+            'accept all', '\u043f\u0440\u0438\u043d\u044f\u0442\u044c \u0432\u0441\u0435',
+            'only allow essential',
+        ];
+        let closed = 0;
+        const dialogs = document.querySelectorAll(
+            '[role="dialog"], [role="alertdialog"], .x1vjfegm, ._a9-z, ._ac7v'
+        );
+        dialogs.forEach(dialog => {
+            dialog.querySelectorAll('button, [role="button"]').forEach(btn => {
+                const t = (btn.innerText || '').toLowerCase().trim();
+                if (texts.some(x => t === x || t.startsWith(x))) { btn.click(); closed++; }
+            });
+        });
+        if (closed === 0) {
+            document.querySelectorAll('button, [role="button"]').forEach(btn => {
+                const t = (btn.innerText || '').toLowerCase().trim();
+                if (t === 'allow' || t === '\u0440\u0430\u0437\u0440\u0435\u0448\u0438\u0442\u044c' ||
+                    t === 'accept all' || t === 'not now' ||
+                    t === '\u043d\u0435 \u0441\u0435\u0439\u0447\u0430\u0441' || t === 'dismiss') {
+                    btn.click(); closed++;
+                }
+            });
+        }
+        return closed;
+    })()
+    """
+    try:
+        closed = await page.evaluate(DISMISS_JS)
+        if closed:
+            log.debug(f"[modal] dismissed {closed} Instagram modal(s)")
+    except Exception:
+        pass  # page may be navigating — silently skip
+
+
+
 async def safe_goto(page, url: str, retries: int = 3, timeout: int = 45000):
     """
     Navigate to a URL using a 'fast commit' + 'selector polling' approach.
@@ -236,6 +288,9 @@ async def scrape_feed(
             except Exception:
                 prev_dom = 0
 
+            # ── Dismiss any modal pop-ups before scrolling ──
+            await dismiss_instagram_modals(page)
+
             # ── Scroll to the absolute bottom so IG's IntersectionObserver fires ──
             await page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
             await asyncio.sleep(random.uniform(0.8, 1.4))
@@ -351,6 +406,9 @@ async def scrape_explore(
                 prev_dom = await page.locator(DOM_SEL).count()
             except Exception:
                 prev_dom = 0
+
+            # ── Dismiss any modal pop-ups before scrolling ──
+            await dismiss_instagram_modals(page)
 
             # ── True bottom scroll — triggers IG's infinite-scroll loader ──
             await page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
