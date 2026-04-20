@@ -624,6 +624,7 @@
       document.getElementById('statCarou').innerText = stats.carousels || 0;
       document.getElementById('statPhoto').innerText = stats.photos || 0;
       document.getElementById('statFiltered').innerText = stats.filtered || 0;
+      if (document.getElementById('statLiked')) document.getElementById('statLiked').innerText = stats.liked || 0;
       
       if (stats.status_text && document.getElementById('statusText')) {
         document.getElementById('statusText').innerText = stats.status_text;
@@ -671,7 +672,10 @@
                <div class="ls-val" id="statPhoto">0</div>
              </div>
           </div>
-          <div style="color:rgba(255,255,255,0.2); font-size:0.75rem; margin-top:8px;">Отфильтровано (старые/не подходят): <strong id="statFiltered">0</strong></div>
+          <div style="font-size:0.75rem; margin-top:12px; display:flex; justify-content:space-between; align-items:center;">
+             <span style="color:rgba(255,255,255,0.2);">Отфильтровано: <strong id="statFiltered">0</strong></span>
+             <span style="color:rgba(255,45,85,0.7); background:rgba(255,45,85,0.1); padding:2px 8px; border-radius:10px;">❤️ Лайкнуто в ленте: <strong id="statLiked" style="color:#ff2d55;">0</strong></span>
+          </div>
         </div>
 
         <!-- Stop & Show Browser Buttons -->

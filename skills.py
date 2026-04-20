@@ -764,6 +764,7 @@ async def master_viral_hunter(
     def wrapped_cb(stats):
         if progress_cb:
             stats["status_text"] = current_status
+            stats["liked"] = global_state.liked_count
             progress_cb(stats)
 
     # Build PostFilter — enforce time_limit and user-set criteria
