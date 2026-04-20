@@ -350,8 +350,7 @@ async def scrape_feed(
                                     }
                                 }""")
                             except: pass
-                            try: await page.mouse.click(10, 10)
-                            except: pass
+                            
                             await asyncio.sleep(0.5)
                             await page.keyboard.press("Escape")
                             await asyncio.sleep(1)
@@ -493,8 +492,7 @@ async def scrape_explore(
                                     }
                                 }""")
                             except: pass
-                            try: await page.mouse.click(10, 10)
-                            except: pass
+                            
                             await asyncio.sleep(0.5)
                             await page.keyboard.press("Escape")
                             await asyncio.sleep(1)
@@ -636,8 +634,7 @@ async def scrape_search(
                                     }
                                 }""")
                             except: pass
-                            try: await page.mouse.click(10, 10)
-                            except: pass
+                            
                             await asyncio.sleep(0.5)
                             await page.keyboard.press("Escape")
                             await asyncio.sleep(1)
@@ -761,8 +758,7 @@ async def scrape_search_tab(
                                 }
                             }""")
                         except: pass
-                        try: await page.mouse.click(10, 10)
-                        except: pass
+                        
                         await asyncio.sleep(0.5)
                         await page.keyboard.press("Escape")
                         await asyncio.sleep(0.5)
