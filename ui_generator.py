@@ -1,10 +1,10 @@
 ﻿"""
-ui_generator.py вЂ” Premium HTML report generator.
+ui_generator.py — Premium HTML report generator.
 
 Features:
   - Dark glassmorphism design with gradient accents
   - Russian localization throughout
-  - Type filters (Reels / РљР°СЂСѓСЃРµР»Рё / Р’СЃРµ)
+  - Type filters (Reels / Карусели / Все)
   - Velocity sub-metrics (likes/h, comments/h, views/h, overall index)
   - Custom animated checkboxes
   - CSV download + Google Sheets clipboard export
@@ -41,9 +41,9 @@ def generate_results_html(posts: list[dict[str, Any]], output_path: str) -> None
         # Type badge config
         type_config = {
             "reel":     {"label": "Reels",    "class": "badge-reel"},
-            "carousel": {"label": "РљР°СЂСѓСЃРµР»СЊ", "class": "badge-carousel"},
-            "video":    {"label": "Р’РёРґРµРѕ",    "class": "badge-video"},
-            "image":    {"label": "Р¤РѕС‚Рѕ",     "class": "badge-image"},
+            "carousel": {"label": "Карусель", "class": "badge-carousel"},
+            "video":    {"label": "Видео",    "class": "badge-video"},
+            "image":    {"label": "Фото",     "class": "badge-image"},
         }
         tc = type_config.get(post_type, {"label": post_type, "class": "badge-other"})
 
@@ -68,7 +68,7 @@ def generate_results_html(posts: list[dict[str, Any]], output_path: str) -> None
           <td><span class="badge {tc['class']}">{tc['label']}</span></td>
           <td><a href="{url}" target="_blank" rel="noopener" class="post-link">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-            РћС‚РєСЂС‹С‚СЊ</a>
+            Открыть</a>
           </td>
           <td class="td-user">@{username}</td>
           <td class="td-caption" title="{caption}">{caption}</td>
@@ -79,7 +79,7 @@ def generate_results_html(posts: list[dict[str, Any]], output_path: str) -> None
           <td class="td-vel-sub">{vel_comments:,.0f}</td>
           <td class="td-vel-sub">{vel_views:,.0f}</td>
           <td class="td-velocity {vel_class}">{velocity:,.1f}</td>
-          <td class="td-age">{hours_ago}С‡</td>
+          <td class="td-age">{hours_ago}ч</td>
           <td class="td-source">{source}</td>
         </tr>"""
 
@@ -92,15 +92,15 @@ def generate_results_html(posts: list[dict[str, Any]], output_path: str) -> None
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Viral Hunter вЂ” Р РµР·СѓР»СЊС‚Р°С‚С‹ Р°РЅР°Р»РёР·Р°</title>
+<title>FilPars — Результаты анализа</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  /* в•ђв•ђв•ђв•ђв•ђв•ђв•ђ RESET & BASE в•ђв•ђв•ђв•ђв•ђв•ђв•ђ */
+  /* ═══════ RESET & BASE ═══════ */
   *, *::before, *::after {{ box-sizing: border-box; margin: 0; padding: 0; }}
   
   :root {{
-    --bg-deep: #06060b;
+    --bg-dark: #08080a;
     --bg-card: rgba(255,255,255,0.025);
     --bg-card-hover: rgba(255,255,255,0.045);
     --border: rgba(255,255,255,0.06);
@@ -108,9 +108,9 @@ def generate_results_html(posts: list[dict[str, Any]], output_path: str) -> None
     --text-primary: #e8e6f0;
     --text-secondary: #8b87a0;
     --text-muted: #5a5672;
-    --accent-1: #a855f7;
-    --accent-2: #ec4899;
-    --accent-3: #f97316;
+    --accent-1: #0A84FF;
+    --accent-2: #30D158;
+    --accent-3: #5E5CE6;
     --vel-fire: #ff6b35;
     --vel-hot: #fbbf24;
     --vel-warm: #a3e635;
@@ -121,7 +121,7 @@ def generate_results_html(posts: list[dict[str, Any]], output_path: str) -> None
 
   body {{
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    background: var(--bg-deep);
+    background: var(--bg-dark);
     color: var(--text-primary);
     min-height: 100vh;
     overflow-x: hidden;
@@ -129,7 +129,7 @@ def generate_results_html(posts: list[dict[str, Any]], output_path: str) -> None
     scrollbar-width: thin;
   }}
 
-  /* в•ђв•ђв•ђв•ђв•ђв•ђв•ђ CUSTOM SCROLLBARS в•ђв•ђв•ђв•ђв•ђв•ђв•ђ */
+  /* ═══════ CUSTOM SCROLLBARS ═══════ */
   ::-webkit-scrollbar {{ width: 8px; height: 8px; }}
   ::-webkit-scrollbar-track {{ background: transparent; }}
   ::-webkit-scrollbar-thumb {{
@@ -150,7 +150,7 @@ def generate_results_html(posts: list[dict[str, Any]], output_path: str) -> None
     border-radius: 100px;
   }}
 
-  /* в•ђв•ђв•ђв•ђв•ђв•ђв•ђ AMBIENT BACKGROUND в•ђв•ђв•ђв•ђв•ђв•ђв•ђ */
+  /* ═══════ AMBIENT BACKGROUND ═══════ */
   body::before {{
     content: '';
     position: fixed;
@@ -172,7 +172,7 @@ def generate_results_html(posts: list[dict[str, Any]], output_path: str) -> None
 
   .container {{ max-width: 1520px; margin: 0 auto; padding: 2rem 1.5rem 1rem; }}
 
-  /* в•ђв•ђв•ђв•ђв•ђв•ђв•ђ HEADER в•ђв•ђв•ђв•ђв•ђв•ђв•ђ */
+  /* ═══════ HEADER ═══════ */
   .header {{
     display: flex;
     align-items: flex-start;
@@ -200,7 +200,7 @@ def generate_results_html(posts: list[dict[str, Any]], output_path: str) -> None
     color: var(--text-primary);
   }}
 
-  /* в•ђв•ђв•ђв•ђв•ђв•ђв•ђ STATS ROW в•ђв•ђв•ђв•ђв•ђв•ђв•ђ */
+  /* ═══════ STATS ROW ═══════ */
   .stats-row {{
     display: flex;
     gap: 0.75rem;
@@ -238,7 +238,7 @@ def generate_results_html(posts: list[dict[str, Any]], output_path: str) -> None
     margin-top: 0.15rem;
   }}
 
-  /* в•ђв•ђв•ђв•ђв•ђв•ђв•ђ TOOLBAR в•ђв•ђв•ђв•ђв•ђв•ђв•ђ */
+  /* ═══════ TOOLBAR ═══════ */
   .toolbar {{
     display: flex;
     align-items: center;
@@ -348,7 +348,7 @@ def generate_results_html(posts: list[dict[str, Any]], output_path: str) -> None
     box-shadow: 0 6px 20px rgba(52,168,83,0.5);
   }}
 
-  /* в”Ђв”Ђ Google Sheets Modal в”Ђв”Ђ */
+  /* ── Google Sheets Modal ── */
   .sheets-modal-overlay {{
     display: none;
     position: fixed; inset: 0; z-index: 9999;
@@ -448,7 +448,7 @@ def generate_results_html(posts: list[dict[str, Any]], output_path: str) -> None
     100% {{ transform: scale(1); }}
   }}
 
-  /* в•ђв•ђв•ђв•ђв•ђв•ђв•ђ TABLE в•ђв•ђв•ђв•ђв•ђв•ђв•ђ */
+  /* ═══════ TABLE ═══════ */
   .table-wrap {{
     background: var(--bg-card);
     border: 1px solid var(--glass-border);
@@ -482,8 +482,8 @@ def generate_results_html(posts: list[dict[str, Any]], output_path: str) -> None
     position: relative;
   }}
   th:hover {{ color: var(--accent-1); }}
-  th.sorted-asc::after {{ content: ' в†‘'; color: var(--accent-1); }}
-  th.sorted-desc::after {{ content: ' в†“'; color: var(--accent-1); }}
+  th.sorted-asc::after {{ content: ' ↑'; color: var(--accent-1); }}
+  th.sorted-desc::after {{ content: ' ↓'; color: var(--accent-1); }}
   th.no-sort {{ cursor: default; }}
   th.no-sort:hover {{ color: var(--text-muted); }}
 
@@ -505,7 +505,7 @@ def generate_results_html(posts: list[dict[str, Any]], output_path: str) -> None
   .table-row.hidden {{ display: none; }}
   .table-row td {{ padding: 0.7rem 0.65rem; font-size: 0.82rem; }}
 
-  /* в•ђв•ђв•ђв•ђв•ђв•ђв•ђ CUSTOM CHECKBOX в•ђв•ђв•ђв•ђв•ђв•ђв•ђ */
+  /* ═══════ CUSTOM CHECKBOX ═══════ */
   .custom-check {{
     display: flex;
     align-items: center;
@@ -551,7 +551,7 @@ def generate_results_html(posts: list[dict[str, Any]], output_path: str) -> None
     width: 50px;
   }}
 
-  /* в•ђв•ђв•ђв•ђв•ђв•ђв•ђ BADGES в•ђв•ђв•ђв•ђв•ђв•ђв•ђ */
+  /* ═══════ BADGES ═══════ */
   .badge {{
     display: inline-flex;
     align-items: center;
@@ -589,7 +589,7 @@ def generate_results_html(posts: list[dict[str, Any]], output_path: str) -> None
     border: 1px solid var(--border);
   }}
 
-  /* в•ђв•ђв•ђв•ђв•ђв•ђв•ђ CELLS в•ђв•ђв•ђв•ђв•ђв•ђв•ђ */
+  /* ═══════ CELLS ═══════ */
   .post-link {{
     color: var(--accent-1);
     text-decoration: none;
@@ -652,7 +652,7 @@ def generate_results_html(posts: list[dict[str, Any]], output_path: str) -> None
     white-space: nowrap;
   }}
 
-  /* в•ђв•ђв•ђв•ђв•ђв•ђв•ђ FOOTER в•ђв•ђв•ђв•ђв•ђв•ђв•ђ */
+  /* ═══════ FOOTER ═══════ */
   .footer {{
     margin-top: 2rem;
     padding: 1.5rem 0;
@@ -698,7 +698,7 @@ def generate_results_html(posts: list[dict[str, Any]], output_path: str) -> None
     font-family: 'JetBrains Mono', monospace;
   }}
 
-  /* в•ђв•ђв•ђв•ђв•ђв•ђв•ђ TOAST в•ђв•ђв•ђв•ђв•ђв•ђв•ђ */
+  /* ═══════ TOAST ═══════ */
   .toast {{
     position: fixed;
     bottom: 2rem;
@@ -721,7 +721,7 @@ def generate_results_html(posts: list[dict[str, Any]], output_path: str) -> None
     transform: translateX(-50%) translateY(0);
   }}
 
-  /* в•ђв•ђв•ђв•ђв•ђв•ђв•ђ RESPONSIVE в•ђв•ђв•ђв•ђв•ђв•ђв•ђ */
+  /* ═══════ RESPONSIVE ═══════ */
   @media (max-width: 768px) {{
     .container {{ padding: 1rem; }}
     .header-left h1 {{ font-size: 1.5rem; }}
@@ -730,7 +730,7 @@ def generate_results_html(posts: list[dict[str, Any]], output_path: str) -> None
     .stat-card .stat-value {{ font-size: 1.15rem; }}
   }}
 
-  /* в•ђв•ђв•ђв•ђв•ђв•ђв•ђ SETTINGS PANEL в•ђв•ђв•ђв•ђв•ђв•ђв•ђ */
+  /* ═══════ SETTINGS PANEL ═══════ */
   .settings-toggle {{
     display: flex;
     align-items: center;
@@ -892,7 +892,7 @@ def generate_results_html(posts: list[dict[str, Any]], output_path: str) -> None
   <!-- Header -->
   <div class="header">
     <div class="header-left">
-      <h1>рџ›° Viral Hunter</h1>
+      <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="#0A84FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:8px; width:22px; height:22px;"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg><h1 style="background: linear-gradient(135deg, var(--accent-1), var(--accent-2)); -webkit-background-clip: text; color: transparent;">FilPars</h1>
       <p>РќР°Р№РґРµРЅРѕ <span>{total_posts}</span> РїРѕСЃС‚РѕРІ вЂ” СЂР°РЅР¶РёСЂРѕРІР°РЅРѕ РїРѕ РРЅРґРµРєСЃСѓ Р’РёСЂР°Р»СЊРЅРѕСЃС‚Рё</p>
     </div>
   </div>
@@ -901,7 +901,7 @@ def generate_results_html(posts: list[dict[str, Any]], output_path: str) -> None
   <div class="stats-row">
     <div class="stat-card">
       <div class="stat-value">{total_posts}</div>
-      <div class="stat-label">Р’СЃРµРіРѕ РїРѕСЃС‚РѕРІ</div>
+      <div class="stat-label">Всего постов</div>
     </div>
     <div class="stat-card">
       <div class="stat-value">{reels_count}</div>
@@ -909,11 +909,11 @@ def generate_results_html(posts: list[dict[str, Any]], output_path: str) -> None
     </div>
     <div class="stat-card">
       <div class="stat-value">{carousel_count}</div>
-      <div class="stat-label">РљР°СЂСѓСЃРµР»Рё</div>
+      <div class="stat-label">Карусели</div>
     </div>
     <div class="stat-card">
       <div class="stat-value" id="visible-count">{total_posts}</div>
-      <div class="stat-label">РџРѕРєР°Р·Р°РЅРѕ</div>
+      <div class="stat-label">Показано</div>
     </div>
   </div>
 
@@ -921,21 +921,21 @@ def generate_results_html(posts: list[dict[str, Any]], output_path: str) -> None
   <div class="toolbar">
     <div class="filters">
       <button class="filter-pill active" data-filter="all" onclick="filterType('all')">
-        Р’СЃРµ <span class="pill-count">{total_posts}</span>
+        Все <span class="pill-count">{total_posts}</span>
       </button>
       <button class="filter-pill" data-filter="reel" onclick="filterType('reel')">
-        рџЋ¬ Reels <span class="pill-count">{reels_count}</span>
+        🎬 Reels <span class="pill-count">{reels_count}</span>
       </button>
       <button class="filter-pill" data-filter="carousel" onclick="filterType('carousel')">
-        рџ“‘ РљР°СЂСѓСЃРµР»Рё <span class="pill-count">{carousel_count}</span>
+        📑 Карусели <span class="pill-count">{carousel_count}</span>
       </button>
     </div>
     <div class="actions">
       <button class="settings-toggle" id="settings-btn" onclick="toggleSettings()">
-        вљ™пёЏ Р¤РёР»СЊС‚СЂС‹ <span class="arrow">в–ј</span>
+        ⚙️ Фильтры <span class="arrow">▼</span>
       </button>
       <button class="btn" onclick="selectAll()">в‘ Р’С‹Р±СЂР°С‚СЊ РІСЃРµ</button>
-      <button class="btn btn-primary" onclick="exportCSV()">рџ“Ґ РЎРєР°С‡Р°С‚СЊ CSV</button>
+      <button class="btn btn-primary" onclick="exportCSV()">📥 Скачать CSV</button>
       <button class="btn btn-sheets" onclick="exportToSheets()">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM7 10h2v7H7zm4-3h2v10h-2zm4 6h2v4h-2z"/></svg>
         Google Sheets
@@ -948,43 +948,43 @@ def generate_results_html(posts: list[dict[str, Any]], output_path: str) -> None
     <div class="settings-inner">
       <div class="settings-grid">
         <div class="setting-group">
-          <div class="setting-label">вќ¤пёЏ Р›Р°Р№РєРё</div>
+          <div class="setting-label">❤️ Лайки</div>
           <div class="setting-range">
-            <input type="number" class="setting-input" id="f-min-likes" placeholder="РјРёРЅ" min="0">
-            <span class="setting-sep">вЂ”</span>
-            <input type="number" class="setting-input" id="f-max-likes" placeholder="РјР°РєСЃ" min="0">
+            <input type="number" class="setting-input" id="f-min-likes" placeholder="мин" min="0">
+            <span class="setting-sep">—</span>
+            <input type="number" class="setting-input" id="f-max-likes" placeholder="макс" min="0">
           </div>
         </div>
         <div class="setting-group">
-          <div class="setting-label">рџ’¬ РљРѕРјРјРµРЅС‚Р°СЂРёРё</div>
+          <div class="setting-label">💬 Комментарии</div>
           <div class="setting-range">
-            <input type="number" class="setting-input" id="f-min-comments" placeholder="РјРёРЅ" min="0">
-            <span class="setting-sep">вЂ”</span>
-            <input type="number" class="setting-input" id="f-max-comments" placeholder="РјР°РєСЃ" min="0">
+            <input type="number" class="setting-input" id="f-min-comments" placeholder="мин" min="0">
+            <span class="setting-sep">—</span>
+            <input type="number" class="setting-input" id="f-max-comments" placeholder="макс" min="0">
           </div>
         </div>
         <div class="setting-group">
-          <div class="setting-label">рџ‘Ѓ РџСЂРѕСЃРјРѕС‚СЂС‹</div>
+          <div class="setting-label">👁 Просмотры</div>
           <div class="setting-range">
-            <input type="number" class="setting-input" id="f-min-views" placeholder="РјРёРЅ" min="0">
-            <span class="setting-sep">вЂ”</span>
-            <input type="number" class="setting-input" id="f-max-views" placeholder="РјР°РєСЃ" min="0">
+            <input type="number" class="setting-input" id="f-min-views" placeholder="мин" min="0">
+            <span class="setting-sep">—</span>
+            <input type="number" class="setting-input" id="f-max-views" placeholder="макс" min="0">
           </div>
         </div>
         <div class="setting-group">
-          <div class="setting-label">рџ‘Ґ РџРѕРґРїРёСЃС‡РёРєРё Р°РІС‚РѕСЂР°</div>
+          <div class="setting-label">👥 Подписчики автора</div>
           <div class="setting-range">
-            <input type="number" class="setting-input" id="f-min-followers" placeholder="РјРёРЅ" min="0">
-            <span class="setting-sep">вЂ”</span>
-            <input type="number" class="setting-input" id="f-max-followers" placeholder="РјР°РєСЃ (РЅР°РїСЂ. 100000)" min="0">
+            <input type="number" class="setting-input" id="f-min-followers" placeholder="мин" min="0">
+            <span class="setting-sep">—</span>
+            <input type="number" class="setting-input" id="f-max-followers" placeholder="макс (напр. 100000)" min="0">
           </div>
         </div>
         <div class="setting-group">
           <div class="setting-label">рџ”Ґ РРЅРґРµРєСЃ РІРёСЂР°Р»СЊРЅРѕСЃС‚Рё</div>
           <div class="setting-range">
-            <input type="number" class="setting-input" id="f-min-velocity" placeholder="РјРёРЅ" min="0">
-            <span class="setting-sep">вЂ”</span>
-            <input type="number" class="setting-input" id="f-max-velocity" placeholder="РјР°РєСЃ" min="0">
+            <input type="number" class="setting-input" id="f-min-velocity" placeholder="мин" min="0">
+            <span class="setting-sep">—</span>
+            <input type="number" class="setting-input" id="f-max-velocity" placeholder="макс" min="0">
           </div>
         </div>
         <div class="setting-group">
@@ -994,13 +994,13 @@ def generate_results_html(posts: list[dict[str, Any]], output_path: str) -> None
               <input type="checkbox" id="f-exclude-zero">
               <span class="toggle-track"></span>
             </label>
-            <span class="toggle-text">РЎРєСЂС‹С‚СЊ РїРѕСЃС‚С‹ СЃ 0 Р»Р°Р№РєРѕРІ Рё 0 РєРѕРјРјРµРЅС‚РѕРІ</span>
+            <span class="toggle-text">Скрыть посты с 0 лайков и 0 комментов</span>
           </div>
         </div>
       </div>
       <div class="settings-actions">
-        <button class="btn btn-sm" onclick="resetFilters()">РЎР±СЂРѕСЃРёС‚СЊ</button>
-        <button class="btn btn-primary btn-sm" onclick="applyFilters()">РџСЂРёРјРµРЅРёС‚СЊ</button>
+        <button class="btn btn-sm" onclick="resetFilters()">Сбросить</button>
+        <button class="btn btn-primary btn-sm" onclick="applyFilters()">Применить</button>
       </div>
     </div>
   </div>
@@ -1017,18 +1017,18 @@ def generate_results_html(posts: list[dict[str, Any]], output_path: str) -> None
                 <span class="checkmark"></span>
               </label>
             </th>
-            <th onclick="sortTable(1)">РўРёРї</th>
-            <th class="no-sort">РЎСЃС‹Р»РєР°</th>
-            <th onclick="sortTable(3)">РђРІС‚РѕСЂ</th>
-            <th class="no-sort">РўРµРєСЃС‚</th>
-            <th class="th-right" onclick="sortTable(5)">Р›Р°Р№РєРё</th>
-            <th class="th-right" onclick="sortTable(6)">РљРѕРјРјРµРЅС‚С‹</th>
-            <th class="th-right" onclick="sortTable(7)">РџСЂРѕСЃРјРѕС‚СЂС‹</th>
-            <th class="th-velocity" onclick="sortTable(8)">вќ¤/С‡</th>
-            <th class="th-velocity" onclick="sortTable(9)">рџ’¬/С‡</th>
-            <th class="th-velocity" onclick="sortTable(10)">рџ‘Ѓ/С‡</th>
+            <th onclick="sortTable(1)">Тип</th>
+            <th class="no-sort">Ссылка</th>
+            <th onclick="sortTable(3)">Автор</th>
+            <th class="no-sort">Текст</th>
+            <th class="th-right" onclick="sortTable(5)">Лайки</th>
+            <th class="th-right" onclick="sortTable(6)">Комменты</th>
+            <th class="th-right" onclick="sortTable(7)">Просмотры</th>
+            <th class="th-velocity" onclick="sortTable(8)">❤/ч</th>
+            <th class="th-velocity" onclick="sortTable(9)">💬/ч</th>
+            <th class="th-velocity" onclick="sortTable(10)">👁/ч</th>
             <th class="th-velocity" onclick="sortTable(11)">РРЅРґРµРєСЃ рџ”Ґ</th>
-            <th class="th-right" onclick="sortTable(12)">Р’РѕР·СЂР°СЃС‚</th>
+            <th class="th-right" onclick="sortTable(12)">Возраст</th>
             <th onclick="sortTable(13)">РСЃС‚РѕС‡РЅРёРє</th>
           </tr>
         </thead>
@@ -1042,7 +1042,7 @@ def generate_results_html(posts: list[dict[str, Any]], output_path: str) -> None
   <!-- Footer -->
   <div class="footer">
     <div class="footer-brand">
-      <span>рџЌЊ</span> РЎРѕР·РґР°РЅРѕ <strong>FilPars</strong>
+      <span>🍌</span> Создано <strong>Banana Master</strong>
     </div>
     <div class="footer-links">
       <a href="https://banana_marketing.t.me" target="_blank" rel="noopener">
@@ -1064,12 +1064,12 @@ def generate_results_html(posts: list[dict[str, Any]], output_path: str) -> None
 <!-- Google Sheets Modal -->
 <div id="sheets-modal" class="sheets-modal-overlay" onclick="closeSheetsModal()">
   <div class="sheets-modal-card" onclick="event.stopPropagation()">
-    <div class="sheets-modal-icon">рџ“‹</div>
-    <h2 class="sheets-modal-title">РўР°Р±Р»РёС†Р° РІ Р±СѓС„РµСЂРµ РѕР±РјРµРЅР°!</h2>
+    <div class="sheets-modal-icon">📋</div>
+    <h2 class="sheets-modal-title">Таблица в буфере обмена!</h2>
     <p class="sheets-modal-sub" id="sheets-row-count"></p>
     <div class="sheets-modal-hint">
       <kbd>Ctrl</kbd> + <kbd>V</kbd>
-      <span>РІ Google Sheets</span>
+      <span>в Google Sheets</span>
     </div>
     <div class="sheets-modal-countdown-wrap">
       <div class="sheets-modal-ring">
@@ -1082,20 +1082,20 @@ def generate_results_html(posts: list[dict[str, Any]], output_path: str) -> None
         </svg>
         <span id="sheets-countdown">3</span>
       </div>
-      <p class="sheets-modal-timer-label">РћС‚РєСЂС‹РІР°РµРј Google Sheets...</p>
+      <p class="sheets-modal-timer-label">Открываем Google Sheets...</p>
     </div>
     <button class="sheets-modal-btn" onclick="doOpenSheets()">
-      РћС‚РєСЂС‹С‚СЊ СЃРµР№С‡Р°СЃ
+      Открыть сейчас
     </button>
-    <button class="sheets-modal-cancel" onclick="closeSheetsModal()">РћС‚РјРµРЅР°</button>
+    <button class="sheets-modal-cancel" onclick="closeSheetsModal()">Отмена</button>
   </div>
 </div>
 
 <script>
-// в”Ђв”Ђ Raw data в”Ђв”Ђ
+// ── Raw data ──
 const RAW_DATA = {json.dumps(posts, ensure_ascii=False)};
 
-// в”Ђв”Ђ Toast в”Ђв”Ђ
+// ── Toast ──
 function showToast(msg) {{
   const t = document.getElementById('toast');
   t.textContent = msg;
@@ -1103,7 +1103,7 @@ function showToast(msg) {{
   setTimeout(() => t.classList.remove('show'), 2500);
 }}
 
-// в”Ђв”Ђ Check All в”Ђв”Ђ
+// ── Check All ──
 document.getElementById('check-all').addEventListener('change', function() {{
   const visible = document.querySelectorAll('.table-row:not(.hidden) .row-check');
   visible.forEach(cb => cb.checked = this.checked);
@@ -1113,10 +1113,10 @@ function selectAll() {{
   const all = document.getElementById('check-all');
   all.checked = true;
   all.dispatchEvent(new Event('change'));
-  showToast('вњ… Р’СЃРµ СЃС‚СЂРѕРєРё РІС‹Р±СЂР°РЅС‹');
+  showToast('✅ Все строки выбраны');
 }}
 
-// в”Ђв”Ђ Filtering в”Ђв”Ђ
+// ── Filtering ──
 let currentFilter = 'all';
 function filterType(type) {{
   currentFilter = type;
@@ -1135,7 +1135,7 @@ function filterType(type) {{
   document.getElementById('visible-count').textContent = visible;
 }}
 
-// в”Ђв”Ђ CSV Export в”Ђв”Ђ
+// ── CSV Export ──
 function getSelectedData() {{
   const checked = document.querySelectorAll('.table-row:not(.hidden) .row-check:checked');
   const indices = Array.from(checked).map(cb => parseInt(cb.dataset.idx));
@@ -1180,10 +1180,10 @@ function exportCSV() {{
   a.download = 'viral_posts_' + new Date().toISOString().slice(0,10) + '.csv';
   a.click();
   URL.revokeObjectURL(url);
-  showToast('рџ“Ґ CSV СЃРєР°С‡Р°РЅ вЂ” ' + selected.length + ' СЃС‚СЂРѕРє');
+  showToast('📥 CSV скачан — ' + selected.length + ' строк');
 }}
 
-// в”Ђв”Ђ Google Sheets Export в”Ђв”Ђ
+// ── Google Sheets Export ──
 let _sheetsCountdownTimer = null;
 let _sheetsTsv = '';
 
@@ -1214,7 +1214,7 @@ function exportToSheets() {{
   // Copy to clipboard
   const copyAndShow = () => {{
     document.getElementById('sheets-row-count').textContent =
-      selected.length + ' СЃС‚СЂРѕРє вЂў ' + headers.length + ' РєРѕР»РѕРЅРѕРє РіРѕС‚РѕРІС‹ Рє РІСЃС‚Р°РІРєРµ';
+      selected.length + ' строк • ' + headers.length + ' колонок готовы к вставке';
     document.getElementById('sheets-modal').classList.add('open');
     startSheetsCountdown();
   }};
@@ -1263,7 +1263,7 @@ function doOpenSheets() {{
   clearInterval(_sheetsCountdownTimer);
   closeSheetsModal();
   window.open('https://docs.google.com/spreadsheets/create', '_blank');
-  showToast('рџ“‹ РћС‚РєСЂС‹РІР°РµРј Google Sheets вЂ” РЅР°Р¶РјРёС‚Рµ Ctrl+V');
+  showToast('📋 Открываем Google Sheets — нажмите Ctrl+V');
 }}
 
 function closeSheetsModal() {{
@@ -1271,7 +1271,7 @@ function closeSheetsModal() {{
   document.getElementById('sheets-modal').classList.remove('open');
 }}
 
-// в”Ђв”Ђ Column Sorting в”Ђв”Ђ
+// ── Column Sorting ──
 let sortState = {{}};
 function sortTable(colIdx) {{
   const table = document.getElementById('results-table');
@@ -1292,9 +1292,9 @@ function sortTable(colIdx) {{
     let aVal = a.cells[colIdx]?.innerText?.trim() || '';
     let bVal = b.cells[colIdx]?.innerText?.trim() || '';
 
-    // Remove units like 'С‡'
-    aVal = aVal.replace(/С‡$/, '').trim();
-    bVal = bVal.replace(/С‡$/, '').trim();
+    // Remove units like 'ч'
+    aVal = aVal.replace(/ч$/, '').trim();
+    bVal = bVal.replace(/ч$/, '').trim();
 
     const aNum = parseFloat(aVal.replace(/[,\\s]/g, ''));
     const bNum = parseFloat(bVal.replace(/[,\\s]/g, ''));
@@ -1307,7 +1307,7 @@ function sortTable(colIdx) {{
   rows.forEach(r => tbody.appendChild(r));
 }}
 
-// в”Ђв”Ђ Settings Panel в”Ђв”Ђ
+// ── Settings Panel ──
 function toggleSettings() {{
   const panel = document.getElementById('settings-panel');
   const btn = document.getElementById('settings-btn');
@@ -1363,7 +1363,7 @@ function applyFilters() {{
     }}
   }});
   document.getElementById('visible-count').textContent = visible;
-  showToast('рџ”Ќ Р¤РёР»СЊС‚СЂС‹ РїСЂРёРјРµРЅРµРЅС‹ вЂ” ' + visible + ' РїРѕСЃС‚РѕРІ');
+  showToast('🔍 Фильтры применены — ' + visible + ' постов');
 }}
 
 function resetFilters() {{
@@ -1374,7 +1374,7 @@ function resetFilters() {{
   }});
   document.getElementById('f-exclude-zero').checked = false;
   filterType(currentFilter);
-  showToast('в™»пёЏ Р¤РёР»СЊС‚СЂС‹ СЃР±СЂРѕС€РµРЅС‹');
+  showToast('♻️ Фильтры сброшены');
 }}
 </script>
 </body>
