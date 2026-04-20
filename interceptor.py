@@ -107,9 +107,8 @@ class PostFilter:
             # Strip emojis, punctuation, urls and whitespace — count only real words
             meaningful = re.sub(r'#\w+|@\w+|https?://\S+|[^\w\sа-яА-ЯёЁa-zA-Z]', '', all_text).strip()
             if not meaningful:
-                # No text signal at all (common for Reels/short clips) — pass through
-                # Can't judge IA relevance without any text, better a false-positive than missing a viral reel
-                pass
+                # No text signal — defer to subtitle batch fetch (not pass-through, not discard)
+                return None  # add_post() will put in state.pending
             elif text_has_ai_topics(post.caption_text):
                 pass  # keyword match succeeded
             elif self.ai_context_detection:
@@ -167,6 +166,7 @@ class PostData:
     thumbnail_url: str = ""
     alt_text: str = ""          # Instagram auto-generated accessibility description
     subtitles_text: str = ""   # Reels subtitles / transcript
+    subtitles_uri: str = ""    # CDN URI to fetch subtitles from (resolved later by batch fetcher)
     is_reel: bool = False
     is_carousel: bool = False
     carousel_count: int = 0
@@ -186,14 +186,23 @@ class InterceptorState:
     liked_count: int = 0
     carousels_count: int = 0
     photos_count: int = 0
+    pending: list = field(default_factory=list)  # reels deferred for subtitle check
 
     def add_post(self, post: PostData, post_filter: Optional[PostFilter] = None) -> bool:
         """Add a post if not already seen and passes filters."""
         if post.post_id in self.seen_ids or not post.post_id:
             return False
-        if post_filter and not post_filter.matches(post):
-            self.filtered_out += 1
-            return False
+        if post_filter:
+            result = post_filter.matches(post)
+            if result is None:
+                # Deferred: no text signal — queue for subtitle fetch
+                if post.post_id not in self.seen_ids:
+                    self.pending.append(post)
+                    self.seen_ids.add(post.post_id)
+                return False
+            if not result:
+                self.filtered_out += 1
+                return False
         self.seen_ids.add(post.post_id)
         self.posts.append(post)
         if post.is_reel:
@@ -343,13 +352,20 @@ def _extract_post(node: dict, source: str = "") -> Optional[PostData]:
         if acc and isinstance(acc, str):
             alt_text = acc[:300]
 
-        # Extract Reels subtitles / transcript text
+        # Extract Reels subtitles / transcript text and CDN URI for batch fetching
         subtitles_text = ""
-        subs = node.get("video_subtitles", []) or []
-        if subs and isinstance(subs, list):
-            # Each entry may have 'text' or 'content'
-            parts = [s.get("text", s.get("content", "")) for s in subs if isinstance(s, dict)]
+        subtitles_uri = ""
+        subs_raw = node.get("video_subtitles", [])
+        if isinstance(subs_raw, list) and subs_raw:
+            # Inline subtitles: list of {text: ...} dicts
+            parts = [s.get("text", s.get("content", "")) for s in subs_raw if isinstance(s, dict)]
             subtitles_text = " ".join(filter(None, parts))[:400]
+        elif isinstance(subs_raw, dict):
+            # URI form: {uri: "https://cdn..."}
+            subtitles_uri = subs_raw.get("uri", subs_raw.get("url", ""))
+        # Also check top-level video_subtitles_uri field
+        if not subtitles_uri:
+            subtitles_uri = str(node.get("video_subtitles_uri", "") or node.get("subtitles_uri", "") or "")
 
         return PostData(
             post_id=post_id, shortcode=shortcode, post_type=post_type,
@@ -360,7 +376,7 @@ def _extract_post(node: dict, source: str = "") -> Optional[PostData]:
             thumbnail_url=thumb if isinstance(thumb, str) else "",
             is_reel=is_reel, is_carousel=is_carousel,
             carousel_count=carousel_count, source=source,
-            alt_text=alt_text, subtitles_text=subtitles_text,
+            alt_text=alt_text, subtitles_text=subtitles_text, subtitles_uri=subtitles_uri,
         )
     except Exception as exc:
         log.debug(f"Failed to extract post node: {exc}")

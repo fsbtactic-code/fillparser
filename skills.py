@@ -128,6 +128,92 @@ async def safe_goto(page, url: str, retries: int = 3, timeout: int = 45000):
     return False
 
 
+async def resolve_pending_subtitles(
+    state: InterceptorState,
+    post_filter: Optional[PostFilter] = None,
+    global_state: Optional[InterceptorState] = None,
+) -> int:
+    """
+    Batch-fetch subtitle CDN URIs for all deferred (no-text-signal) posts in state.pending.
+    Posts whose subtitles match the AI keyword filter are added to state.posts.
+    Posts with no subtitles (truly silent) are discarded.
+    Returns number of posts promoted to main collection.
+    """
+    if not state.pending:
+        return 0
+
+    import urllib.request
+    promoted = 0
+    log.info(f"[subtitle_check] Проверяем субтитры для {len(state.pending)} отложенных постов...")
+
+    for post in state.pending:
+        try:
+            subs_text = ""
+
+            if post.subtitles_uri:
+                # Fetch subtitles from Instagram CDN (lightweight JSON/SRT)
+                loop = asyncio.get_event_loop()
+                def _fetch_subs(uri=post.subtitles_uri):
+                    req = urllib.request.Request(uri, headers={"User-Agent": "Mozilla/5.0"})
+                    with urllib.request.urlopen(req, timeout=5) as resp:
+                        return resp.read().decode("utf-8", errors="replace")
+                try:
+                    raw = await asyncio.wait_for(loop.run_in_executor(None, _fetch_subs), timeout=6)
+                    import json as _json
+                    try:
+                        data = _json.loads(raw)
+                        if isinstance(data, list):
+                            subs_text = " ".join(
+                                item.get("text", item.get("content", ""))
+                                for item in data if isinstance(item, dict)
+                            )[:400]
+                        elif isinstance(data, dict):
+                            subs_text = str(data.get("text", data.get("transcript", "")))[:400]
+                    except Exception:
+                        # Try SRT format: extract text between timestamps
+                        import re as _re
+                        subs_text = " ".join(_re.findall(r'^[^\d\-\>].+$', raw, _re.MULTILINE))[:400]
+                except Exception as exc:
+                    log.debug(f"[subtitle_check] Failed to fetch subs for {post.shortcode}: {exc}")
+
+            # Populate post (mutate) with fetched subtitles
+            object.__setattr__(post, 'subtitles_text', subs_text) if hasattr(post, '__dataclass_fields__') else setattr(post, 'subtitles_text', subs_text)
+
+            # Now re-evaluate: if we have text, run AI keyword check
+            if subs_text.strip():
+                from interceptor import text_has_ai_topics
+                from ai_detector import is_ai_content
+                if text_has_ai_topics(subs_text) or (post_filter and post_filter.ai_context_detection and is_ai_content(subtitles=subs_text)):
+                    # Promote to main collection (seen_id already added in pending path)
+                    state.posts.append(post)
+                    if post.is_reel:
+                        state.reels_count += 1
+                    elif post.is_carousel:
+                        state.carousels_count += 1
+                    else:
+                        state.photos_count += 1
+                    if global_state:
+                        global_state.posts.append(post)
+                        if post.is_reel:
+                            global_state.reels_count += 1
+                    promoted += 1
+                    log.info(f"[subtitle_check] ✅ Promoted via subtitles: {post.shortcode}")
+                else:
+                    state.filtered_out += 1
+                    log.debug(f"[subtitle_check] ❌ Rejected (subs no AI match): {post.shortcode}")
+            else:
+                # Truly silent reel — discard
+                state.filtered_out += 1
+                log.debug(f"[subtitle_check] ❌ Rejected (no subs): {post.shortcode}")
+
+        except Exception as exc:
+            log.debug(f"[subtitle_check] Error on {post.shortcode}: {exc}")
+            state.filtered_out += 1
+
+    state.pending.clear()
+    log.info(f"[subtitle_check] Итого продвинуто: {promoted} постов")
+    return promoted
+
 def _hours_ago(ts: int) -> float:
     if ts <= 0:
         return 999.0
@@ -419,7 +505,10 @@ async def scrape_feed(
         await browser.rescue_window()
         await browser.close()
 
-    log.info(f"[scrape_feed] Done — {len(state.posts)} posts, {state.filtered_out} filtered out")
+    log.info(f"[scrape_feed] Done — {len(state.posts)} posts, {state.filtered_out} filtered, {len(state.pending)} pending")
+    if state.pending and post_filter and post_filter.only_ai_topics:
+        await resolve_pending_subtitles(state, post_filter)
+        log.info(f"[scrape_feed] After subtitle check: {len(state.posts)} posts total")
     return _serialize_posts(state.posts)
 
 
@@ -537,7 +626,10 @@ async def scrape_explore(
         await browser.rescue_window()
         await browser.close()
 
-    log.info(f"[scrape_explore] Done — {len(state.posts)} posts, {state.filtered_out} filtered out")
+    log.info(f"[scrape_explore] Done — {len(state.posts)} posts, {state.filtered_out} filtered, {len(state.pending)} pending")
+    if state.pending and post_filter and post_filter.only_ai_topics:
+        await resolve_pending_subtitles(state, post_filter)
+        log.info(f"[scrape_explore] After subtitle check: {len(state.posts)} posts total")
     return _serialize_posts(state.posts)
 
 
