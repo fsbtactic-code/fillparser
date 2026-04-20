@@ -769,7 +769,7 @@ async def master_viral_hunter(
             current_status = "Сканируем Ленту..."
             wrapped_cb({"collected": len(global_state.posts), "filtered": global_state.filtered_out, "reels": global_state.reels_count, "carousels": global_state.carousels_count, "photos": global_state.photos_count})
             try:
-                feed_posts = await scrape_feed(time_limit_hours, max_posts=feed_limit, post_filter=post_filter, scrolls_limit=max_scrolls, fetch_images=fetch_images, fetch_reels=fetch_reels, fetch_carousels=fetch_carousels, progress_cb=wrapped_cb, stop_event=stop_event, global_state=global_state)
+                feed_posts = await scrape_feed(time_limit_hours, max_posts=feed_limit, post_filter=post_filter, scrolls_limit=15, fetch_images=fetch_images, fetch_reels=fetch_reels, fetch_carousels=fetch_carousels, progress_cb=wrapped_cb, stop_event=stop_event, global_state=global_state)
                 log.info(f"[master] Feed returned {len(feed_posts)} posts")
                 all_posts.extend(feed_posts)
             except Exception as exc:
@@ -784,7 +784,7 @@ async def master_viral_hunter(
             current_status = "Сканируем Интересное..."
             wrapped_cb({"collected": len(global_state.posts), "filtered": global_state.filtered_out, "reels": global_state.reels_count, "carousels": global_state.carousels_count, "photos": global_state.photos_count})
             try:
-                explore_posts = await scrape_explore(time_limit_hours, max_posts=explore_limit, post_filter=post_filter, scrolls_limit=max_scrolls, fetch_images=fetch_images, fetch_reels=fetch_reels, fetch_carousels=fetch_carousels, progress_cb=wrapped_cb, stop_event=stop_event, global_state=global_state)
+                explore_posts = await scrape_explore(time_limit_hours, max_posts=explore_limit, post_filter=post_filter, scrolls_limit=20, fetch_images=fetch_images, fetch_reels=fetch_reels, fetch_carousels=fetch_carousels, progress_cb=wrapped_cb, stop_event=stop_event, global_state=global_state)
                 log.info(f"[master] Explore returned {len(explore_posts)} posts")
                 all_posts.extend(explore_posts)
             except Exception as exc:
